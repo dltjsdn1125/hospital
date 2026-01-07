@@ -20,6 +20,7 @@
 - 신청한 대진 관리 (신청함 / 확정됨 / 완료)
 - 캘린더 형태의 스케줄 관리
 - 중복 근무 자동 차단
+- 의사 간 일정 변경 요청
 
 ### 3. 병원 기능
 - 대진 스케줄 등록 및 관리
@@ -27,9 +28,15 @@
 - 진행 상태 관리 (모집중 / 신청 의사 확인 / 확정 / 완료)
 - 신청한 의사 중 한 명 선택하여 확정
 - 신청 의사 목록 관리
+- 전체 의사 일정 통합 캘린더 뷰
+- 전체 그리드 뷰 (시간별 의사 일정 한눈에 보기)
+- 의사 직접 배정 또는 제안하기 방식
+- 미결 일정 알림 기능 (연두색 음영 + 시각적 효과)
+- 의사 간 일정 변경 요청 승인
 
 ### 4. 매칭 시스템 (1:N 구조)
 - 병원이 대진 등록 → 다수의 의사가 신청 → 병원이 한 명 선택하여 확정
+- 병원이 의사를 직접 배정 가능
 - 스케줄 기반 자동 매칭 (의사 조건과 일치하는 대진 추천)
 - 조건 일치 시 알림 제공
 - 중복 근무 자동 차단
@@ -41,109 +48,51 @@ Hospital work schedule/
 ├── index.html              # 랜딩 페이지
 ├── login.html              # 로그인 페이지 (병원/의사 구분)
 ├── signup.html             # 회원가입 페이지 (병원/의사 구분)
-├── doctor-dashboard.html   # 의사 대시보드
-├── hospital-dashboard.html # 병원 대시보드
+├── doctor-dashboard.html   # 의사 대시보드 (달력 그리드 뷰)
+├── hospital-dashboard.html # 병원 대시보드 (통합 캘린더 + 전체 그리드)
 ├── doctor-profile.html     # 의사 프로필 관리
 ├── hospital-profile.html   # 병원 프로필 관리
 ├── schedule.html           # 스케줄 관리 페이지
+├── schedule-timeline.html  # 의사 시간별 타임라인 상세
+├── hospital-timeline.html  # 병원 시간별 타임라인 상세
 ├── shift-register.html     # 대진 등록 페이지 (병원용)
 ├── shift-apply.html        # 대진 신청 페이지 (의사용)
 ├── shift-detail.html       # 대진 상세 페이지 (병원용 - 신청 의사 확인)
 ├── css/
 │   └── styles.css          # 공통 스타일시트
-└── README.md               # 프로젝트 문서
+├── js/
+│   └── auth.js             # 인증 관련 유틸리티
+├── package.json
+├── vercel.json             # Vercel 배포 설정
+└── README.md
 ```
 
-## 디자인 시스템
+## 배포
 
-### 색상
-- 배경: #ffffff (순백색)
-- 메인 텍스트: #3a3a3c (깊은 그레이)
-- 서브 텍스트: #9ea1a8
-- 버튼: #5d5d63 (부드러운 차콜)
-- 액센트: #f0f2f5
+### Vercel 배포
 
-### 스타일
-- Glassmorphism 디자인 적용
-- 반응형 웹 디자인
-- 모던한 UI/UX
+이 프로젝트는 Vercel을 통해 정적 사이트로 배포됩니다.
 
-### 폰트
-- Inter, Noto Sans KR (Google Fonts)
-- Font Awesome 아이콘
+**Vercel 배포 설정:**
+- Framework Preset: `Other` 또는 `Static Site`
+- Root Directory: `./`
+- Build Command: (비워두기)
+- Output Directory: `./`
+- Install Command: `npm install` (선택사항)
 
-## 페이지 설명
+### 로컬 개발
 
-### 공통 페이지
-1. **index.html** - 랜딩 페이지
-   - 서비스 소개
-   - 주요 기능 설명
-   - 로그인/회원가입 링크
+```bash
+# 의존성 설치
+npm install
 
-2. **login.html** - 로그인
-   - 병원/의사 선택
-   - 이메일/비밀번호 로그인
+# 로컬 서버 실행
+npm run serve
+# 또는
+npx http-server -p 8080 -c-1
+```
 
-3. **signup.html** - 회원가입
-   - 3단계 가입 프로세스
-   - 병원/의사 구분
-   - 약관 동의
-
-### 의사 페이지
-4. **doctor-dashboard.html** - 의사 대시보드
-   - 모집 중인 대진 목록 조회 및 신청
-   - 내 신청 목록 (신청함/확정됨/완료)
-   - 통계 정보
-   - 캘린더 뷰
-
-5. **doctor-profile.html** - 프로필 관리
-   - 기본 정보 수정
-   - 전문과목, 경력 설정
-   - 근무 가능 지역 관리
-   - 근무 가능 시간 설정
-
-6. **schedule.html** - 스케줄 관리
-   - 캘린더 형태 일정 확인
-   - 일정 추가/수정
-
-7. **shift-apply.html** - 대진 신청
-   - 병원 정보 확인
-   - 대진 상세 조건 확인
-   - 신청하기 기능
-
-### 병원 페이지
-8. **hospital-dashboard.html** - 병원 대시보드
-   - 대진 관리 (모집중/신청 의사/확정됨/완료)
-   - 신청한 의사 목록 확인 및 확정
-   - 통계 정보
-   - 캘린더 뷰
-
-9. **hospital-profile.html** - 병원 프로필 관리
-   - 병원 정보 수정
-   - 진료 과목 설정
-   - 담당자 정보
-
-10. **shift-register.html** - 대진 등록
-    - 근무 일정 등록
-    - 진료과, 시간 설정
-    - 필수 자격 요건 설정
-
-11. **shift-detail.html** - 대진 상세
-    - 신청한 의사 목록 확인
-    - 의사 확정/거절
-
-## 사용 방법
-
-1. 브라우저에서 `index.html` 열기 또는 개발 서버 실행
-   ```bash
-   npm run serve
-   ```
-2. "시작하기" 버튼 클릭하여 로그인
-3. 테스트 계정으로 로그인:
-   - **의사 계정**: doctor@example.com / doctor123
-   - **병원 계정**: hospital@example.com / hospital123
-4. 사용자 유형 선택 (의사/병원)
-5. 각 대시보드에서 기능 이용
+서버는 http://localhost:8080 에서 실행됩니다.
 
 ## 테스트 계정
 
@@ -155,39 +104,68 @@ Hospital work schedule/
 - 이메일: `hospital@example.com`
 - 비밀번호: `hospital123`
 
-> 로그인 페이지 하단에 테스트 계정 정보가 표시됩니다.
+## 주요 기능 상세
 
-## 향후 확장 기능
+### 의사 페이지
+1. **doctor-dashboard.html** - 의사 대시보드
+   - 모집 중인 대진 목록 조회 및 신청
+   - 내 신청 목록 (신청함/확정됨/완료)
+   - 통계 정보
+   - 캘린더 뷰 (날짜 클릭 시 시간별 타임라인으로 이동)
+   - 일정 등록 기능
 
-- 리뷰/평가 시스템
-- 반복 대진 기능
-- 정산 관리
-- 푸시/문자/이메일 알림 연동
-- 백엔드 API 연동
-- 데이터베이스 설계 및 구현
+2. **doctor-profile.html** - 프로필 관리
+   - 기본 정보 수정
+   - 전문과목, 경력 설정
+   - 근무 가능 지역 관리
+   - 근무 가능 시간 설정 (30분 단위)
+
+3. **schedule-timeline.html** - 시간별 타임라인
+   - 30분 단위로 일정 확인
+   - 시간대별 일정 추가
+   - 날짜별 탐색
+
+4. **shift-apply.html** - 대진 신청
+   - 병원 정보 확인
+   - 대진 상세 조건 확인
+   - 신청하기 기능
+
+### 병원 페이지
+1. **hospital-dashboard.html** - 병원 대시보드
+   - 통합 캘린더: 모든 의사의 일정을 한눈에 확인
+   - 전체 그리드: 시간별 의사 일정을 테이블 형태로 확인
+   - 대진 관리: 모집중/신청 의사/확정됨/완료 탭
+   - 변경 요청: 의사 간 일정 변경 요청 승인
+   - 미결 일정 알림: 3일 이내 미결 일정 연두색 음영 + 시각적 효과
+   - 통계 정보
+   - 의사별 필터링
+
+2. **hospital-timeline.html** - 시간별 타임라인
+   - 전체 의사의 시간별 일정 확인
+   - 30분 단위 세분화 표시
+   - 중복 부킹 경고 표시
+
+3. **shift-register.html** - 대진 등록
+   - 제안하기: 의사가 자원하도록 공개
+   - 직접 배정: 의사를 직접 선택하여 배정
+   - 중복 부킹 자동 방지
+
+4. **shift-detail.html** - 대진 상세
+   - 신청한 의사 목록 확인
+   - 의사 선택 및 확정
+   - 중복 부킹 체크
+
+## 모바일 반응형
+
+모든 페이지는 모바일 반응형으로 구현되어 있으며, 768px 이하에서 최적화된 레이아웃을 제공합니다.
 
 ## 기술 스택
 
 - HTML5
-- CSS3 (Glassmorphism)
-- JavaScript (Vanilla)
-- Font Awesome
-- Google Fonts
-
-## 브라우저 지원
-
-- Chrome (최신)
-- Firefox (최신)
-- Safari (최신)
-- Edge (최신)
+- CSS3 (Glassmorphism 디자인)
+- JavaScript (Vanilla JS)
+- Vercel (배포)
 
 ## 라이선스
 
-이 프로젝트는 MVP 버전입니다.
-
-## 개발자 노트
-
-- 모든 페이지는 반응형 디자인으로 구현되었습니다.
-- 실제 백엔드 연동은 추후 구현 예정입니다.
-- 현재는 프론트엔드 UI/UX 구현 단계입니다.
-- 모든 페이지는 index.html의 디자인 시스템을 따릅니다.
+MIT
