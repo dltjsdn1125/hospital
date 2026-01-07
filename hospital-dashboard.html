@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>병원 대시보드 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .dashboard-container {
+            height: 100vh;
+            padding: 80px 2% 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 1%;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .view-selector {
+            display: flex;
+            gap: 10px;
+            padding: 0 1%;
+            margin-bottom: 15px;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .view-btn.active {
+            background: var(--primary-btn);
+            color: #fff;
+            border-color: var(--primary-btn);
+        }
+
+        .calendar-wrapper {
+            flex: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-month-year {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calendar-nav-btn {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--accent-soft);
+        }
+
+        .doctor-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .doctor-filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .doctor-filter-btn.active {
+            background: var(--primary-btn);
+            color: #fff;
+            border-color: var(--primary-btn);
+        }
+
+        .calendar-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: auto 1fr;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .weekday-header {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+        }
+
+        .calendar-day-cell {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 120px;
+            position: relative;
+        }
+
+        .calendar-day-cell:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .calendar-day-cell.today {
+            border-color: var(--primary-btn);
+            background: rgba(93, 93, 99, 0.1);
+        }
+
+        .calendar-day-cell.other-month {
+            opacity: 0.3;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .day-shifts {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+        }
+
+        .shift-item-multi {
+            font-size: 0.65rem;
+            padding: 5px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .shift-item-multi:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+
+        .shift-item-multi.confirmed {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .shift-item-multi.pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .shift-item-multi.recruiting {
+            background: #17a2b8;
+            color: #fff;
+        }
+
+        .shift-item-multi.change-request {
+            background: #6f42c1;
+            color: #fff;
+        }
+
+        .doctor-name-tag {
+            font-weight: 600;
+            margin-right: 3px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .stat-item i {
+            color: var(--primary-btn);
+        }
+
+        .stat-item strong {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .add-shift-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-btn);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .calendar-day-cell:hover .add-shift-btn {
+            opacity: 1;
+        }
+
+        .shift-count {
+            margin-top: 5px;
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        /* 모달 스타일 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-sub);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+            }
+
+            .dashboard-container {
+                height: auto;
+                min-height: 100vh;
+                padding: 90px 4% 20px;
+            }
+
+            .calendar-wrapper {
+                padding: 20px 15px;
+                border-radius: 20px;
+            }
+
+            .calendar-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .calendar-controls > div:last-child {
+                width: 100%;
+            }
+
+            .calendar-controls > div:last-child button {
+                flex: 1;
+            }
+
+            .radio-group {
+                flex-direction: column;
+            }
+
+            .radio-item {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* 전체 그리드 스타일 */
+        .grid-controls {
+            margin-bottom: 25px;
+        }
+
+        .grid-legend {
+            display: flex;
+            gap: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.confirmed {
+            background: #28a745;
+        }
+
+        .legend-color.pending {
+            background: #ffc107;
+        }
+
+        .legend-color.recruiting {
+            background: #17a2b8;
+        }
+
+        .legend-color.unresolved {
+            background: #90EE90;
+            box-shadow: 0 0 10px rgba(144, 238, 144, 0.6);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(144, 238, 144, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(144, 238, 144, 0.9);
+            }
+        }
+
+        .grid-table-wrapper {
+            overflow-x: auto;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .full-grid-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 4px;
+            min-width: 800px;
+        }
+
+        .full-grid-table th {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            position: sticky;
+            z-index: 10;
+        }
+
+        .time-column {
+            width: 80px;
+            position: sticky;
+            left: 0;
+            background: rgba(255, 255, 255, 0.8) !important;
+            z-index: 11;
+        }
+
+        .day-column {
+            min-width: 120px;
+        }
+
+        .full-grid-table td {
+            padding: 8px;
+            text-align: center;
+            vertical-align: top;
+            border-radius: 6px;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .time-cell {
+            background: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .grid-cell {
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 60px;
+        }
+
+        .grid-cell:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(1.02);
+        }
+
+        .grid-cell.has-shift {
+            background: var(--primary-btn);
+            color: #fff;
+        }
+
+        .grid-cell.has-shift.confirmed {
+            background: #28a745;
+        }
+
+        .grid-cell.has-shift.pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .grid-cell.has-shift.recruiting {
+            background: #17a2b8;
+        }
+
+        .grid-cell.has-shift.unresolved {
+            background: #90EE90;
+            color: #000;
+            box-shadow: 0 0 15px rgba(144, 238, 144, 0.7);
+            animation: alert-pulse 2s infinite;
+            font-weight: 600;
+        }
+
+        @keyframes alert-pulse {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(144, 238, 144, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(144, 238, 144, 1);
+                transform: scale(1.02);
+            }
+        }
+
+        .shift-info-grid {
+            font-size: 0.7rem;
+            text-align: left;
+            padding: 4px;
+        }
+
+        .shift-info-grid .doctor-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .shift-info-grid .shift-time {
+            font-size: 0.65rem;
+            opacity: 0.9;
+        }
+
+        .unresolved-badge {
+            display: inline-block;
+            background: #ff4757;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-top: 4px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .grid-table-wrapper {
+                padding: 10px;
+            }
+
+            .full-grid-table {
+                min-width: 600px;
+                font-size: 0.75rem;
+            }
+
+            .time-column {
+                width: 60px;
+            }
+
+            .day-column {
+                min-width: 90px;
+            }
+
+            .grid-legend {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="hospital-profile.html">프로필</a>
+            <a href="#" onclick="logoutHandler()">로그아웃</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1><span class="user-name">중앙연세의원</span> 전체 의사 일정</h1>
+                <p style="color: var(--text-sub); font-size: 0.9rem; margin-top: 5px;">모든 의사의 일정을 한눈에 확인하세요</p>
+            </div>
+            <div class="header-actions">
+                <a href="hospital-profile.html" class="btn btn-secondary btn-small">프로필</a>
+                <button class="btn btn-main btn-small" onclick="showAddShiftModal()">
+                    <i class="fa-solid fa-plus"></i> 대진 등록
+                </button>
+            </div>
+        </div>
+
+        <div class="view-selector">
+            <button class="view-btn active" onclick="switchView('calendar')">통합 캘린더</button>
+            <button class="view-btn" onclick="switchView('grid')">전체 그리드</button>
+            <button class="view-btn" onclick="switchView('shifts')">대진 관리</button>
+            <button class="view-btn" onclick="switchView('requests')">변경 요청</button>
+        </div>
+
+        <!-- 통합 캘린더 뷰 -->
+        <div class="calendar-wrapper" id="calendarView">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>확정: <strong>5건</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-user-clock"></i>
+                    <span>신청 대기: <strong>3건</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    <span>모집중: <strong>3건</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-exchange-alt"></i>
+                    <span>변경 요청: <strong>2건</strong></span>
+                </div>
+            </div>
+
+            <div class="doctor-filter">
+                <button class="doctor-filter-btn active" onclick="filterDoctor('all')">전체</button>
+                <button class="doctor-filter-btn" onclick="filterDoctor('김의사')">김의사</button>
+                <button class="doctor-filter-btn" onclick="filterDoctor('박의사')">박의사</button>
+                <button class="doctor-filter-btn" onclick="filterDoctor('이의사')">이의사</button>
+            </div>
+
+            <div class="calendar-controls">
+                <div class="calendar-month-year">
+                    <button class="calendar-nav-btn" onclick="prevMonth()">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span id="currentMonthYear">2025년 1월</span>
+                    <button class="calendar-nav-btn" onclick="nextMonth()">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary btn-small" onclick="goToToday()">오늘</button>
+                    <button class="btn btn-main btn-small" onclick="showAddShiftModal()">일정 등록</button>
+                </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- 캘린더 그리드는 JS로 생성 -->
+            </div>
+        </div>
+
+        <!-- 대진 관리 뷰 -->
+        <div class="calendar-wrapper" id="shiftsView" style="display: none;">
+            <div class="tabs" style="margin-bottom: 25px;">
+                <button class="tab active" onclick="switchShiftTab('recruiting')">모집 중</button>
+                <button class="tab" onclick="switchShiftTab('applicants')">신청 의사</button>
+                <button class="tab" onclick="switchShiftTab('confirmed')">확정됨</button>
+                <button class="tab" onclick="switchShiftTab('completed')">완료</button>
+            </div>
+
+            <div class="tab-content active" id="shift-tab-recruiting">
+                <!-- 모집 중인 대진 목록 -->
+            </div>
+
+            <div class="tab-content" id="shift-tab-applicants">
+                <!-- 신청한 의사 목록 -->
+            </div>
+
+            <div class="tab-content" id="shift-tab-confirmed">
+                <!-- 확정된 대진 목록 -->
+            </div>
+
+            <div class="tab-content" id="shift-tab-completed">
+                <!-- 완료된 대진 목록 -->
+            </div>
+        </div>
+
+        <!-- 전체 그리드 뷰 -->
+        <div class="calendar-wrapper" id="gridView" style="display: none;">
+            <div class="grid-controls">
+                <div class="calendar-controls">
+                    <div class="calendar-month-year">
+                        <button class="calendar-nav-btn" onclick="prevGridMonth()">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <span id="gridMonthYear">2025년 1월</span>
+                        <button class="calendar-nav-btn" onclick="nextGridMonth()">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary btn-small" onclick="goToGridToday()">오늘</button>
+                        <button class="btn btn-main btn-small" onclick="showAddShiftModal()">일정 등록</button>
+                    </div>
+                </div>
+                <div class="grid-legend">
+                    <div class="legend-item">
+                        <div class="legend-color confirmed"></div>
+                        <span>확정됨</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color pending"></div>
+                        <span>승인 대기</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color recruiting"></div>
+                        <span>모집 중</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color unresolved"></div>
+                        <span>미결 (알람)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-table-wrapper">
+                <table class="full-grid-table">
+                    <thead>
+                        <tr>
+                            <th class="time-column">시간</th>
+                            <th class="day-column" id="gridDayHeaders">
+                                <!-- 요일 헤더는 JS로 생성 -->
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="gridTableBody">
+                        <!-- 그리드 내용은 JS로 생성 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 변경 요청 뷰 -->
+        <div class="calendar-wrapper" id="requestsView" style="display: none;">
+            <h2 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 25px;">일정 변경 요청</h2>
+            <div id="changeRequestsList">
+                <!-- 변경 요청 목록 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 대진 등록 모달 -->
+    <div id="addShiftModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>대진 일정 등록</h2>
+                <button class="close-modal" onclick="closeModal('addShiftModal')">&times;</button>
+            </div>
+            
+            <form id="addShiftForm">
+                <div class="form-group">
+                    <label>등록 방식</label>
+                    <div class="radio-group" style="display: flex; gap: 15px; margin-top: 10px;">
+                        <div class="radio-item active" onclick="selectShiftType(this, 'propose')" style="flex: 1; padding: 15px; border: 2px solid var(--glass-border); border-radius: 15px; cursor: pointer; text-align: center;">
+                            <input type="radio" name="shiftType" value="propose" checked style="display: none;">
+                            <i class="fa-solid fa-bullhorn" style="display: block; font-size: 1.5rem; margin-bottom: 8px;"></i>
+                            <div style="font-weight: 600;">제안하기</div>
+                            <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 5px;">의사가 자원하도록 공개</div>
+                        </div>
+                        <div class="radio-item" onclick="selectShiftType(this, 'assign')" style="flex: 1; padding: 15px; border: 2px solid var(--glass-border); border-radius: 15px; cursor: pointer; text-align: center;">
+                            <input type="radio" name="shiftType" value="assign" style="display: none;">
+                            <i class="fa-solid fa-user-check" style="display: block; font-size: 1.5rem; margin-bottom: 8px;"></i>
+                            <div style="font-weight: 600;">직접 배정</div>
+                            <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 5px;">의사를 직접 선택</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="doctorSelection" style="display: none; margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="selectDoctor">의사 선택</label>
+                        <select id="selectDoctor" name="selectDoctor" style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                            <option value="">의사를 선택하세요</option>
+                            <option value="김의사">김의사 (내과 전문의)</option>
+                            <option value="박의사">박의사 (내과 전문의)</option>
+                            <option value="이의사">이의사 (정형외과 전문의)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="shiftDate">날짜</label>
+                    <input type="date" id="shiftDate" name="shiftDate" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>시간 범위</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="shiftStartTime">시작</label>
+                            <input type="time" id="shiftStartTime" name="shiftStartTime" step="1800" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        </div>
+                        <div class="form-group">
+                            <label for="shiftEndTime">종료</label>
+                            <input type="time" id="shiftEndTime" name="shiftEndTime" step="1800" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 12px; background: rgba(255, 255, 255, 0.6); border-radius: 12px; font-size: 0.85rem; color: var(--text-sub);">
+                        <i class="fa-solid fa-shield-check"></i> 중복 부킹 자동 방지 시스템이 작동합니다.
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="shiftSpecialty">진료 과목</label>
+                    <select id="shiftSpecialty" name="shiftSpecialty" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        <option value="">선택하세요</option>
+                        <option value="internal">내과</option>
+                        <option value="orthopedic">정형외과</option>
+                        <option value="pediatrics">소아과</option>
+                        <option value="obstetrics">산부인과</option>
+                        <option value="psychiatry">정신건강의학과</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="shiftNote">상세 설명</label>
+                    <textarea id="shiftNote" name="shiftNote" rows="3" placeholder="대진에 대한 상세 정보를 입력해주세요" style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem; resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal('addShiftModal')">취소</button>
+                    <button type="submit" class="btn btn-main" style="flex: 1;">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 일정 상세 모달 -->
+    <div id="shiftDetailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>일정 상세</h2>
+                <button class="close-modal" onclick="closeModal('shiftDetailModal')">&times;</button>
+            </div>
+            <div id="shiftDetailContent">
+                <!-- 일정 상세 내용은 JS로 생성 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 인증 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = checkAuth('hospital');
+            if (loginInfo) {
+                updateUserName();
+            }
+            renderCalendar();
+            renderShiftsView();
+            renderChangeRequests();
+        });
+
+        let currentCalendarDate = new Date();
+        let selectedDoctorFilter = 'all';
+
+        // 샘플 데이터
+        const allShifts = {
+            '2025-01-12': [
+                { id: '1', doctor: '김의사', time: '13:00-18:00', specialty: '내과', status: 'recruiting', applicants: 3 },
+                { id: '2', doctor: '박의사', time: '09:00-17:00', specialty: '내과', status: 'confirmed' }
+            ],
+            '2025-01-15': [
+                { id: '3', doctor: null, time: '09:00-13:00', specialty: '정형외과', status: 'recruiting', applicants: 1 }
+            ],
+            '2025-01-18': [
+                { id: '4', doctor: '이의사', time: '09:00-17:00', specialty: '정형외과', status: 'confirmed' }
+            ],
+            '2025-01-10': [
+                { id: '5', doctor: '김의사', time: '09:00-17:00', specialty: '내과', status: 'pending', applicants: 0 }
+            ]
+        };
+
+        const changeRequests = [
+            { id: '1', fromDoctor: '김의사', toDoctor: '박의사', date: '2025-01-12', time: '13:00-18:00', reason: '개인 사정', status: 'pending' },
+            { id: '2', fromDoctor: '이의사', toDoctor: '김의사', date: '2025-01-20', time: '09:00-13:00', reason: '병원 변경', status: 'pending' }
+        ];
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            document.getElementById('currentMonthYear').textContent = `${year}년 ${month + 1}월`;
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // 요일 헤더
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'weekday-header';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
+            });
+
+            // 날짜 계산
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let currentDate = new Date(startDate);
+            for (let i = 0; i < 42; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day-cell';
+                
+                if (currentDate.getMonth() !== month) {
+                    dayCell.classList.add('other-month');
+                }
+                
+                const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const cellDate = new Date(currentDate);
+                cellDate.setHours(0, 0, 0, 0);
+                
+                if (cellDate.getTime() === today.getTime()) {
+                    dayCell.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = currentDate.getDate();
+                dayCell.appendChild(dayNumber);
+
+                const dayShifts = document.createElement('div');
+                dayShifts.className = 'day-shifts';
+
+                // 해당 날짜의 일정 표시
+                if (allShifts[dateKey]) {
+                    const filteredShifts = selectedDoctorFilter === 'all' 
+                        ? allShifts[dateKey] 
+                        : allShifts[dateKey].filter(s => s.doctor === selectedDoctorFilter);
+
+                    filteredShifts.forEach(shift => {
+                        const shiftItem = document.createElement('div');
+                        shiftItem.className = `shift-item-multi ${shift.status}`;
+                        
+                        let displayText = '';
+                        if (shift.status === 'recruiting') {
+                            displayText = `[모집] ${shift.specialty} ${shift.time}`;
+                            if (shift.applicants > 0) {
+                                displayText += ` (${shift.applicants}명)`;
+                            }
+                        } else if (shift.status === 'pending') {
+                            displayText = `[대기] ${shift.doctor || '미배정'} ${shift.time}`;
+                        } else {
+                            displayText = `[확정] ${shift.doctor} ${shift.time}`;
+                        }
+                        
+                        shiftItem.textContent = displayText;
+                        shiftItem.onclick = (e) => {
+                            e.stopPropagation();
+                            showShiftDetail(shift, dateKey);
+                        };
+                        dayShifts.appendChild(shiftItem);
+                    });
+                    
+                    if (filteredShifts.length > 2) {
+                        const count = document.createElement('div');
+                        count.className = 'shift-count';
+                        count.textContent = `+${filteredShifts.length - 2}건`;
+                        dayShifts.appendChild(count);
+                    }
+                }
+
+                const addBtn = document.createElement('button');
+                addBtn.className = 'add-shift-btn';
+                addBtn.innerHTML = '+';
+                addBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    openAddShiftModal(cellDate);
+                };
+                dayCell.appendChild(addBtn);
+
+                // 날짜 클릭 시 시간별 상세 페이지로 이동
+                dayCell.onclick = () => {
+                    const dateStr = formatDateForUrl(cellDate);
+                    window.location.href = `hospital-timeline.html?date=${dateStr}`;
+                };
+
+                dayCell.appendChild(dayShifts);
+                calendarGrid.appendChild(dayCell);
+
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+
+        function formatDateForUrl(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        let currentGridDate = new Date();
+
+        function switchView(viewType) {
+            document.getElementById('calendarView').style.display = viewType === 'calendar' ? 'flex' : 'none';
+            document.getElementById('gridView').style.display = viewType === 'grid' ? 'flex' : 'none';
+            document.getElementById('shiftsView').style.display = viewType === 'shifts' ? 'flex' : 'none';
+            document.getElementById('requestsView').style.display = viewType === 'requests' ? 'flex' : 'none';
+            
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (viewType === 'grid') {
+                renderFullGrid();
+            }
+        }
+
+        function filterDoctor(doctorName) {
+            selectedDoctorFilter = doctorName;
+            document.querySelectorAll('.doctor-filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCalendar();
+        }
+
+        function prevMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentCalendarDate = new Date();
+            renderCalendar();
+        }
+
+        function selectShiftType(element, type) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('active');
+                item.style.borderColor = 'var(--glass-border)';
+            });
+            element.classList.add('active');
+            element.style.borderColor = 'var(--primary-btn)';
+            element.querySelector('input[type="radio"]').checked = true;
+            
+            document.getElementById('doctorSelection').style.display = type === 'assign' ? 'block' : 'none';
+            if (type === 'assign') {
+                document.getElementById('selectDoctor').required = true;
+            } else {
+                document.getElementById('selectDoctor').required = false;
+            }
+        }
+
+        function showAddShiftModal() {
+            document.getElementById('addShiftModal').classList.add('active');
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('shiftDate').value = today;
+        }
+
+        function openAddShiftModal(date) {
+            document.getElementById('addShiftModal').classList.add('active');
+            const dateStr = date.toISOString().split('T')[0];
+            document.getElementById('shiftDate').value = dateStr;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            if (modalId === 'addShiftModal') {
+                document.getElementById('addShiftForm').reset();
+                document.getElementById('doctorSelection').style.display = 'none';
+            }
+        }
+
+        function showShiftDetail(shift, dateKey) {
+            const modal = document.getElementById('shiftDetailModal');
+            const content = document.getElementById('shiftDetailContent');
+            
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 15px;">${dateKey} ${shift.time}</h3>
+                    <p style="color: var(--text-sub); margin-bottom: 10px;">진료과: ${shift.specialty}</p>
+                </div>
+            `;
+
+            if (shift.status === 'recruiting') {
+                html += `
+                    <div style="padding: 20px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; margin-bottom: 20px;">
+                        <h4 style="font-weight: 600; margin-bottom: 10px;">신청한 의사</h4>
+                        <div id="applicantsList">
+                            <p style="color: var(--text-sub); font-size: 0.9rem;">신청한 의사가 없습니다.</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('shiftDetailModal')">닫기</button>
+                        <button class="btn btn-main" style="flex: 1;" onclick="viewFullShiftDetail('${shift.id}')">상세 보기</button>
+                    </div>
+                `;
+            } else if (shift.status === 'pending') {
+                html += `
+                    <div style="padding: 20px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; margin-bottom: 20px;">
+                        <p style="color: var(--text-sub);">승인 대기 중인 일정입니다.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('shiftDetailModal')">닫기</button>
+                        <button class="btn btn-main" style="flex: 1;" onclick="viewFullShiftDetail('${shift.id}')">상세 보기</button>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="padding: 20px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; margin-bottom: 20px;">
+                        <p><strong>확정된 의사:</strong> ${shift.doctor}</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('shiftDetailModal')">닫기</button>
+                        <button class="btn btn-main" style="flex: 1;" onclick="viewFullShiftDetail('${shift.id}')">상세 보기</button>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+            modal.classList.add('active');
+        }
+
+        function viewFullShiftDetail(shiftId) {
+            window.location.href = `shift-detail.html?id=${shiftId}`;
+        }
+
+        function renderShiftsView() {
+            // 모집 중 탭
+            const recruitingTab = document.getElementById('shift-tab-recruiting');
+            recruitingTab.innerHTML = `
+                <div class="match-list">
+                    <div class="shift-row" onclick="viewFullShiftDetail('1')">
+                        <div>
+                            <h4>내과 대진</h4>
+                            <p><i class="fa-solid fa-calendar"></i> 1월 12일 (수) | <i class="fa-solid fa-clock"></i> 오후 1:00 - 6:00</p>
+                            <p><i class="fa-solid fa-user"></i> 신청자 3명</p>
+                        </div>
+                        <span class="tag">모집 중</span>
+                    </div>
+                    <div class="shift-row" onclick="viewFullShiftDetail('3')">
+                        <div>
+                            <h4>정형외과 대진</h4>
+                            <p><i class="fa-solid fa-calendar"></i> 1월 15일 (토) | <i class="fa-solid fa-clock"></i> 오전 9:00 - 오후 1:00</p>
+                            <p><i class="fa-solid fa-user"></i> 신청자 1명</p>
+                        </div>
+                        <span class="tag">모집 중</span>
+                    </div>
+                </div>
+            `;
+
+            // 신청 의사 탭
+            const applicantsTab = document.getElementById('shift-tab-applicants');
+            applicantsTab.innerHTML = `
+                <div class="match-list">
+                    <div class="shift-row">
+                        <div style="flex: 1;">
+                            <h4>소아과 대진</h4>
+                            <p><i class="fa-solid fa-calendar"></i> 1월 8일 (토) | <i class="fa-solid fa-clock"></i> 오전 10:00 - 오후 4:00</p>
+                        </div>
+                        <div class="doctor-info">
+                            <div class="doctor-avatar">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">김의사</div>
+                                <div style="font-size: 0.8rem; color: var(--text-sub);">내과 전문의</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                            <span class="tag warning">승인 대기</span>
+                            <div class="action-buttons">
+                                <button class="btn btn-main btn-small" onclick="confirmDoctor('4', '김의사')">승인</button>
+                                <button class="btn btn-secondary btn-small" onclick="rejectDoctor('4', '김의사')">거절</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 확정됨 탭
+            const confirmedTab = document.getElementById('shift-tab-confirmed');
+            confirmedTab.innerHTML = `
+                <div class="match-list">
+                    <div class="shift-row" onclick="viewFullShiftDetail('2')">
+                        <div style="flex: 1;">
+                            <h4>내과 대진 - 박의사님</h4>
+                            <p><i class="fa-solid fa-calendar"></i> 1월 12일 (수) | <i class="fa-solid fa-clock"></i> 오전 9:00 - 오후 5:00</p>
+                        </div>
+                        <div class="doctor-info">
+                            <div class="doctor-avatar">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">박의사</div>
+                                <div style="font-size: 0.8rem; color: var(--text-sub);">내과 전문의</div>
+                            </div>
+                        </div>
+                        <span class="tag success">확정됨</span>
+                    </div>
+                    <div class="shift-row" onclick="viewFullShiftDetail('4')">
+                        <div style="flex: 1;">
+                            <h4>정형외과 대진 - 이의사님</h4>
+                            <p><i class="fa-solid fa-calendar"></i> 1월 18일 (화) | <i class="fa-solid fa-clock"></i> 오전 9:00 - 오후 5:00</p>
+                        </div>
+                        <div class="doctor-info">
+                            <div class="doctor-avatar">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">이의사</div>
+                                <div style="font-size: 0.8rem; color: var(--text-sub);">정형외과 전문의</div>
+                            </div>
+                        </div>
+                        <span class="tag success">확정됨</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function switchShiftTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`shift-tab-${tabName}`).classList.add('active');
+        }
+
+        function renderChangeRequests() {
+            const container = document.getElementById('changeRequestsList');
+            if (changeRequests.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-sub); padding: 40px;">변경 요청이 없습니다.</p>';
+                return;
+            }
+
+            container.innerHTML = changeRequests.map(req => `
+                <div class="shift-row">
+                    <div style="flex: 1;">
+                        <h4>일정 변경 요청</h4>
+                        <p><i class="fa-solid fa-calendar"></i> ${req.date} | <i class="fa-solid fa-clock"></i> ${req.time}</p>
+                        <p><i class="fa-solid fa-user-doctor"></i> ${req.fromDoctor} → ${req.toDoctor}</p>
+                        <p style="font-size: 0.85rem; color: var(--text-sub); margin-top: 5px;">사유: ${req.reason}</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                        <span class="tag warning">승인 대기</span>
+                        <div class="action-buttons">
+                            <button class="btn btn-main btn-small" onclick="approveChangeRequest('${req.id}')">승인</button>
+                            <button class="btn btn-secondary btn-small" onclick="rejectChangeRequest('${req.id}')">거절</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function confirmDoctor(shiftId, doctorName) {
+            if (confirm(`${doctorName}님을 확정하시겠습니까?`)) {
+                // 중복 부킹 체크
+                if (checkDuplicateBooking(shiftId, doctorName)) {
+                    alert('경고: 해당 의사가 같은 시간대에 다른 일정이 있습니다. 그래도 진행하시겠습니까?');
+                } else {
+                    alert(`${doctorName}님이 확정되었습니다.`);
+                    renderCalendar();
+                    renderShiftsView();
+                }
+            }
+        }
+
+        function rejectDoctor(shiftId, doctorName) {
+            if (confirm(`${doctorName}님의 신청을 거절하시겠습니까?`)) {
+                alert('신청이 거절되었습니다.');
+            }
+        }
+
+        function approveChangeRequest(requestId) {
+            const request = changeRequests.find(r => r.id === requestId);
+            if (confirm(`일정 변경을 승인하시겠습니까?\n\n${request.fromDoctor} → ${request.toDoctor}\n${request.date} ${request.time}`)) {
+                // 중복 부킹 체크
+                if (checkDuplicateBookingForChange(request)) {
+                    alert('경고: 변경 대상 의사가 같은 시간대에 다른 일정이 있습니다.');
+                    return;
+                }
+                alert('일정 변경이 승인되었습니다.');
+                renderCalendar();
+                renderChangeRequests();
+            }
+        }
+
+        function rejectChangeRequest(requestId) {
+            if (confirm('일정 변경 요청을 거절하시겠습니까?')) {
+                alert('변경 요청이 거절되었습니다.');
+                renderChangeRequests();
+            }
+        }
+
+        function checkDuplicateBooking(shiftId, doctorName) {
+            // 실제로는 API 호출하여 중복 확인
+            // 예시: 같은 시간대에 다른 일정이 있는지 확인
+            return false; // 임시로 false 반환
+        }
+
+        function checkDuplicateBookingForChange(request) {
+            // 실제로는 API 호출하여 변경 대상 의사의 중복 확인
+            return false; // 임시로 false 반환
+        }
+
+        document.getElementById('addShiftForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const shiftType = document.querySelector('input[name="shiftType"]:checked').value;
+            const date = document.getElementById('shiftDate').value;
+            const startTime = document.getElementById('shiftStartTime').value;
+            const endTime = document.getElementById('shiftEndTime').value;
+            const specialty = document.getElementById('shiftSpecialty').value;
+            const note = document.getElementById('shiftNote').value;
+
+            if (shiftType === 'assign') {
+                const doctor = document.getElementById('selectDoctor').value;
+                if (!doctor) {
+                    alert('의사를 선택해주세요.');
+                    return;
+                }
+                alert(`의사가 직접 배정되었습니다.\n의사: ${doctor}\n날짜: ${date}\n시간: ${startTime} - ${endTime}`);
+            } else {
+                alert(`대진이 등록되었습니다. 의사들에게 제안이 발송됩니다.\n날짜: ${date}\n시간: ${startTime} - ${endTime}`);
+            }
+            
+            closeModal('addShiftModal');
+            renderCalendar();
+        });
+
+        function logoutHandler() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                logout();
+            }
+        }
+
+        // 전체 그리드 렌더링
+        function renderFullGrid() {
+            const year = currentGridDate.getFullYear();
+            const month = currentGridDate.getMonth();
+            
+            document.getElementById('gridMonthYear').textContent = `${year}년 ${month + 1}월`;
+
+            // 요일 헤더 생성
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayHeaders = document.getElementById('gridDayHeaders');
+            dayHeaders.innerHTML = '';
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            let currentDate = new Date(startDate);
+            for (let i = 0; i < 42; i++) {
+                if (currentDate.getMonth() !== month) {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    continue;
+                }
+
+                const th = document.createElement('th');
+                th.className = 'day-column';
+                th.innerHTML = `
+                    <div>${weekdays[currentDate.getDay()]}</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; margin-top: 5px;">${currentDate.getDate()}</div>
+                `;
+                dayHeaders.appendChild(th);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            // 시간대별 그리드 생성 (06:00 ~ 22:00, 30분 단위)
+            const tableBody = document.getElementById('gridTableBody');
+            tableBody.innerHTML = '';
+
+            for (let hour = 6; hour < 23; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    const row = document.createElement('tr');
+
+                    // 시간 셀
+                    const timeCell = document.createElement('td');
+                    timeCell.className = 'time-cell';
+                    timeCell.textContent = timeStr;
+                    row.appendChild(timeCell);
+
+                    // 각 날짜 셀
+                    currentDate = new Date(startDate);
+                    for (let day = 0; day < 42; day++) {
+                        const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                        const cell = document.createElement('td');
+                        cell.className = 'grid-cell';
+
+                        // 해당 날짜와 시간의 일정 확인
+                        if (allShifts[dateKey]) {
+                            const matchingShifts = allShifts[dateKey].filter(shift => {
+                                const [startH, startM] = shift.time.split('-')[0].split(':').map(Number);
+                                const [endH, endM] = shift.time.split('-')[1].split(':').map(Number);
+                                const startMinutes = startH * 60 + startM;
+                                const endMinutes = endH * 60 + endM;
+                                const currentMinutes = hour * 60 + minute;
+                                return currentMinutes >= startMinutes && currentMinutes < endMinutes;
+                            });
+
+                            if (matchingShifts.length > 0) {
+                                const shift = matchingShifts[0];
+                                cell.classList.add('has-shift', shift.status);
+                                
+                                // 미결 상태 체크 (모집중이거나 신청 대기중이면서 3일 이내)
+                                const shiftDate = new Date(dateKey);
+                                const today = new Date();
+                                const daysDiff = Math.floor((shiftDate - today) / (1000 * 60 * 60 * 24));
+                                
+                                if ((shift.status === 'recruiting' || shift.status === 'pending') && daysDiff <= 3 && daysDiff >= 0) {
+                                    cell.classList.add('unresolved');
+                                    const badge = document.createElement('span');
+                                    badge.className = 'unresolved-badge';
+                                    badge.textContent = '!';
+                                    badge.title = '미결된 일정 - 확인 필요';
+                                    cell.appendChild(badge);
+                                }
+
+                                const shiftInfo = document.createElement('div');
+                                shiftInfo.className = 'shift-info-grid';
+                                if (shift.doctor) {
+                                    shiftInfo.innerHTML = `
+                                        <span class="doctor-name">${shift.doctor}</span>
+                                        <span class="shift-time">${shift.time}</span>
+                                    `;
+                                } else {
+                                    shiftInfo.innerHTML = `
+                                        <span class="doctor-name">${shift.specialty}</span>
+                                        <span class="shift-time">${shift.time}</span>
+                                        ${shift.applicants ? `<span style="font-size: 0.6rem;">신청 ${shift.applicants}명</span>` : ''}
+                                    `;
+                                }
+                                cell.appendChild(shiftInfo);
+
+                                cell.onclick = () => {
+                                    showShiftDetail(shift, dateKey);
+                                };
+                            } else if (currentDate.getMonth() === month) {
+                                // 빈 셀 (같은 달만)
+                                cell.onclick = () => {
+                                    openAddShiftModal(currentDate);
+                                };
+                            }
+                        } else if (currentDate.getMonth() === month) {
+                            // 빈 셀 (같은 달만)
+                            cell.onclick = () => {
+                                openAddShiftModal(currentDate);
+                            };
+                        }
+
+                        if (currentDate.getMonth() !== month) {
+                            cell.style.opacity = '0.3';
+                        }
+
+                        row.appendChild(cell);
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+
+                    tableBody.appendChild(row);
+                }
+            }
+        }
+
+        function prevGridMonth() {
+            currentGridDate.setMonth(currentGridDate.getMonth() - 1);
+            renderFullGrid();
+        }
+
+        function nextGridMonth() {
+            currentGridDate.setMonth(currentGridDate.getMonth() + 1);
+            renderFullGrid();
+        }
+
+        function goToGridToday() {
+            currentGridDate = new Date();
+            renderFullGrid();
+        }
+
+        // 미결 일정 알림 체크 및 표시
+        function checkUnresolvedShifts() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let unresolvedCount = 0;
+            Object.keys(allShifts).forEach(dateKey => {
+                const shiftDate = new Date(dateKey);
+                const daysDiff = Math.floor((shiftDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff <= 3 && daysDiff >= 0) {
+                    allShifts[dateKey].forEach(shift => {
+                        if (shift.status === 'recruiting' || shift.status === 'pending') {
+                            unresolvedCount++;
+                        }
+                    });
+                }
+            });
+
+            // 알림 배지 업데이트
+            const gridBtn = document.querySelector('.view-btn[onclick*="grid"]');
+            if (gridBtn && unresolvedCount > 0) {
+                if (!gridBtn.querySelector('.alert-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'alert-badge';
+                    badge.style.cssText = 'background: #ff4757; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 8px; animation: blink 1.5s infinite;';
+                    badge.textContent = unresolvedCount;
+                    gridBtn.appendChild(badge);
+                } else {
+                    gridBtn.querySelector('.alert-badge').textContent = unresolvedCount;
+                }
+            } else if (gridBtn) {
+                const badge = gridBtn.querySelector('.alert-badge');
+                if (badge) badge.remove();
+            }
+        }
+
+        // 초기화 시 미결 일정 체크
+        window.addEventListener('DOMContentLoaded', () => {
+            setInterval(() => {
+                checkUnresolvedShifts();
+            }, 5000); // 5초마다 체크
+            checkUnresolvedShifts();
+        });
+
+        // 모달 외부 클릭 시 닫기
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

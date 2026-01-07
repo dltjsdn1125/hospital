@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의사 대시보드 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+            }
+
+            .dashboard-container {
+                height: auto;
+                min-height: 100vh;
+                padding: 90px 4% 20px;
+            }
+
+            .calendar-wrapper {
+                padding: 20px 15px;
+                border-radius: 20px;
+            }
+
+            .calendar-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .calendar-month-year {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 15px;
+            }
+
+            .view-selector {
+                padding: 0;
+                margin-bottom: 15px;
+            }
+
+            .view-btn {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
+        .dashboard-container {
+            height: 100vh;
+            padding: 80px 2% 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 1%;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .calendar-wrapper {
+            flex: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-month-year {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--accent-soft);
+        }
+
+        .calendar-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: auto 1fr;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .weekday-header {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+        }
+
+        .calendar-day-cell {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 120px;
+            position: relative;
+        }
+
+        .calendar-day-cell:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .calendar-day-cell.today {
+            border-color: var(--primary-btn);
+            background: rgba(93, 93, 99, 0.1);
+        }
+
+        .calendar-day-cell.other-month {
+            opacity: 0.3;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-day-cell.has-shift {
+            border-color: var(--primary-btn);
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .day-shifts {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+        }
+
+        .shift-item-small {
+            font-size: 0.7rem;
+            padding: 6px 8px;
+            background: var(--primary-btn);
+            color: #fff;
+            border-radius: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .shift-item-small.confirmed {
+            background: #28a745;
+        }
+
+        .shift-item-small.pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .shift-item-small.applied {
+            background: #17a2b8;
+        }
+
+        .shift-count {
+            margin-top: 5px;
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .add-shift-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-btn);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .calendar-day-cell:hover .add-shift-btn {
+            opacity: 1;
+        }
+
+        .add-shift-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .stat-item i {
+            color: var(--primary-btn);
+        }
+
+        .stat-item strong {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="doctor-profile.html">프로필</a>
+            <a href="#" onclick="logoutHandler()">로그아웃</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1><span class="user-name">김의사</span>님의 스케줄</h1>
+                <p style="color: var(--text-sub); font-size: 0.9rem; margin-top: 5px;">중앙연세의원과 연결되어 있습니다</p>
+            </div>
+            <div class="header-actions">
+                <a href="doctor-profile.html" class="btn btn-secondary btn-small">프로필</a>
+                <button class="btn btn-main btn-small" onclick="showAddShiftModal()">
+                    <i class="fa-solid fa-plus"></i> 대진 등록
+                </button>
+            </div>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>확정: <strong>2건</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>대기: <strong>2건</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    <span>모집중: <strong>3건</strong></span>
+                </div>
+            </div>
+
+            <div class="calendar-controls">
+                <div class="calendar-month-year">
+                    <button class="calendar-nav-btn" onclick="prevMonth()">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span id="currentMonthYear">2025년 1월</span>
+                    <button class="calendar-nav-btn" onclick="nextMonth()">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-nav">
+                    <button onclick="goToToday()">오늘</button>
+                    <button onclick="showAddShiftModal()">일정 추가</button>
+                </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- 캘린더 그리드는 JS로 생성 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 대진 등록 모달 -->
+    <div id="addShiftModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: var(--glass-bg); backdrop-filter: blur(30px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="font-size: 1.5rem; font-weight: 600;">대진 일정 등록</h2>
+                <button onclick="closeAddShiftModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-sub);">&times;</button>
+            </div>
+            
+            <form id="addShiftForm">
+                <div class="form-group">
+                    <label for="shiftDate">날짜</label>
+                    <input type="date" id="shiftDate" name="shiftDate" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>시간 범위</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="shiftStartTime">시작</label>
+                            <input type="time" id="shiftStartTime" name="shiftStartTime" step="1800" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        </div>
+                        <div class="form-group">
+                            <label for="shiftEndTime">종료</label>
+                            <input type="time" id="shiftEndTime" name="shiftEndTime" step="1800" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="shiftType">일정 유형</label>
+                    <select id="shiftType" name="shiftType" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        <option value="confirmed">확정된 일정</option>
+                        <option value="pending">신청 대기중</option>
+                        <option value="applied">신청한 대진</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="shiftNote">메모</label>
+                    <input type="text" id="shiftNote" name="shiftNote" placeholder="예: 내과 대진 - 중앙연세의원" style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeAddShiftModal()">취소</button>
+                    <button type="submit" class="btn btn-main" style="flex: 1;">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 인증 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = checkAuth('doctor');
+            if (loginInfo) {
+                updateUserName();
+            }
+            renderCalendar();
+        });
+
+        let currentCalendarDate = new Date();
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            document.getElementById('currentMonthYear').textContent = `${year}년 ${month + 1}월`;
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // 요일 헤더
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'weekday-header';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
+            });
+
+            // 날짜 계산
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 샘플 일정 데이터
+            const shifts = {
+                '2025-01-12': [
+                    { time: '13:00-18:00', type: 'pending', note: '내과 대진' }
+                ],
+                '2025-01-15': [
+                    { time: '09:00-13:00', type: 'pending', note: '정형외과 대진' }
+                ],
+                '2025-01-18': [
+                    { time: '09:00-17:00', type: 'confirmed', note: '내과 대진' }
+                ],
+                '2025-01-10': [
+                    { time: '09:00-17:00', type: 'applied', note: '내과 대진' }
+                ],
+                '2025-01-22': [
+                    { time: '10:00-14:00', type: 'applied', note: '정형외과 대진' }
+                ]
+            };
+
+            let currentDate = new Date(startDate);
+            for (let i = 0; i < 42; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day-cell';
+                
+                if (currentDate.getMonth() !== month) {
+                    dayCell.classList.add('other-month');
+                }
+                
+                const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const cellDate = new Date(currentDate);
+                cellDate.setHours(0, 0, 0, 0);
+                
+                if (cellDate.getTime() === today.getTime()) {
+                    dayCell.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = currentDate.getDate();
+                dayCell.appendChild(dayNumber);
+
+                const dayShifts = document.createElement('div');
+                dayShifts.className = 'day-shifts';
+
+                // 해당 날짜의 일정 표시
+                if (shifts[dateKey]) {
+                    dayCell.classList.add('has-shift');
+                    shifts[dateKey].forEach(shift => {
+                        const shiftItem = document.createElement('div');
+                        shiftItem.className = `shift-item-small ${shift.type}`;
+                        shiftItem.textContent = `${shift.time} ${shift.note}`;
+                        shiftItem.onclick = (e) => {
+                            e.stopPropagation();
+                        };
+                        dayShifts.appendChild(shiftItem);
+                    });
+                    
+                    if (shifts[dateKey].length > 1) {
+                        const count = document.createElement('div');
+                        count.className = 'shift-count';
+                        count.textContent = `+${shifts[dateKey].length - 1}건`;
+                        dayShifts.appendChild(count);
+                    }
+                }
+
+                const addBtn = document.createElement('button');
+                addBtn.className = 'add-shift-btn';
+                addBtn.innerHTML = '+';
+                addBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    openAddShiftModal(cellDate);
+                };
+                dayCell.appendChild(addBtn);
+
+                // 날짜 클릭 시 타임라인 상세 페이지로 이동
+                dayCell.onclick = () => {
+                    const dateStr = formatDateForUrl(cellDate);
+                    window.location.href = `schedule-timeline.html?date=${dateStr}`;
+                };
+
+                dayCell.appendChild(dayShifts);
+                calendarGrid.appendChild(dayCell);
+
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+
+        function formatDateForUrl(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function prevMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentCalendarDate = new Date();
+            renderCalendar();
+        }
+
+        function showAddShiftModal() {
+            document.getElementById('addShiftModal').style.display = 'flex';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('shiftDate').value = today;
+        }
+
+        function openAddShiftModal(date) {
+            document.getElementById('addShiftModal').style.display = 'flex';
+            const dateStr = date.toISOString().split('T')[0];
+            document.getElementById('shiftDate').value = dateStr;
+        }
+
+        function closeAddShiftModal() {
+            document.getElementById('addShiftModal').style.display = 'none';
+            document.getElementById('addShiftForm').reset();
+        }
+
+        document.getElementById('addShiftForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const date = document.getElementById('shiftDate').value;
+            const startTime = document.getElementById('shiftStartTime').value;
+            const endTime = document.getElementById('shiftEndTime').value;
+            const type = document.getElementById('shiftType').value;
+            const note = document.getElementById('shiftNote').value || '대진 일정';
+
+            alert(`일정이 등록되었습니다.\n날짜: ${date}\n시간: ${startTime} - ${endTime}`);
+            closeAddShiftModal();
+            renderCalendar();
+        });
+
+        function showChangeRequestModal() {
+            const shiftId = prompt('변경을 요청할 일정 ID를 입력하세요:');
+            if (!shiftId) return;
+
+            const targetDoctor = prompt('변경 대상 의사 이름을 입력하세요 (예: 박의사):');
+            if (!targetDoctor) return;
+
+            const reason = prompt('변경 사유를 입력하세요:');
+            if (!reason) return;
+
+            if (confirm(`일정 변경을 요청하시겠습니까?\n\n변경 대상: ${targetDoctor}님\n사유: ${reason}`)) {
+                alert('일정 변경 요청이 병원에 전송되었습니다. 승인을 기다려주세요.');
+            }
+        }
+
+        function logoutHandler() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                logout();
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('addShiftModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addShiftModal') {
+                closeAddShiftModal();
+            }
+        });
+    </script>
+</body>
+</html>

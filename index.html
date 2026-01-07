@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOC-LINK | 스마트 의료 매칭</title>
+    <!-- Google Fonts: Inter & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* 히어로 섹션 */
+        .hero {
+            padding: 220px 8% 120px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-sub);
+            max-width: 700px;
+            margin: 0 auto 50px;
+            font-weight: 300;
+        }
+
+        /* 글래스 카드 섹션 */
+        .preview-section {
+            padding: 0 8% 100px;
+        }
+
+        .glass-panel {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            overflow: hidden;
+        }
+
+        /* 특징 그리드 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            padding: 100px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+        .feature-item:hover { transform: translateY(-5px); }
+
+        .feature-item i {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            opacity: 0.7;
+        }
+
+        .feature-item h3 { font-size: 1.2rem; margin-bottom: 15px; font-weight: 600; }
+        .feature-item p { font-size: 0.9rem; color: var(--text-sub); line-height: 1.7; }
+
+        footer {
+            padding: 80px 8%;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 180px 4% 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 60px 4%;
+            }
+
+            .glass-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-section {
+                padding: 0 4% 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <div class="logo">DOC-LINK</div>
+        <div class="nav-links">
+            <a href="#features">서비스 소개</a>
+            <a href="login.html">병원 매칭</a>
+            <a href="login.html">의사 커뮤니티</a>
+            <a href="login.html" class="btn btn-main btn-small">시작하기</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>의료진의 시간이<br>더 가치 있게 쓰이도록</h1>
+        <p>복잡한 구인 게시판에서 벗어나세요. 스케줄링 알고리즘이 당신의 비어있는 시간을 가장 완벽한 근무지로 채워드립니다.</p>
+        <a href="login.html" class="btn btn-main">지금 무료로 체험하기</a>
+    </section>
+
+    <section class="preview-section">
+        <div class="glass-panel">
+            <div class="panel-content">
+                <span class="section-label">Current Matching</span>
+                <div class="match-row">
+                    <div>
+                        <h4>중앙연세의원</h4>
+                        <p>1월 12일 | 오후 1:00 - 6:00</p>
+                    </div>
+                    <span class="tag">매칭 대기중</span>
+                </div>
+                <div class="match-row">
+                    <div>
+                        <h4>서울성모정형외과</h4>
+                        <p>1월 15일 | 오전 9:00 - 오후 1:00</p>
+                    </div>
+                    <span class="tag" style="background: var(--accent-soft);">매칭 완료</span>
+                </div>
+                <div class="match-row">
+                    <div>
+                        <h4>바른내과병원</h4>
+                        <p>1월 20일 | 전일 근무</p>
+                    </div>
+                    <span class="tag">새로운 제안</span>
+                </div>
+            </div>
+            <div class="panel-side">
+                <span class="section-label">Your Schedule</span>
+                <p style="font-size: 0.9rem; margin-bottom: 20px;">이번 주 확정된 대진 일정은 <strong>2건</strong>입니다.</p>
+                <div class="calendar-dots">
+                    <div class="dot">월</div><div class="dot">화</div><div class="dot">수</div><div class="dot">목</div><div class="dot">금</div><div class="dot">토</div><div class="dot">일</div>
+                    <div class="dot">10</div><div class="dot active">11</div><div class="dot">12</div><div class="dot">13</div><div class="dot active">14</div><div class="dot">15</div><div class="dot">16</div>
+                </div>
+                <div style="margin-top: 30px; padding: 20px; background: #fff; border-radius: 20px; font-size: 0.8rem; color: var(--text-sub); border: 1px solid #f0f0f0;">
+                    <i class="fa-solid fa-shield-check" style="margin-right: 5px;"></i> 중복 근무 방지 시스템 작동 중
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="feature-item">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <h3>실시간 스케줄링</h3>
+            <p>의사의 근무 가능 시간과 병원의 요청 시간을 초 단위로 분석하여 최적의 매칭을 제공합니다.</p>
+        </div>
+        <div class="feature-item">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <h3>자동 매칭 엔진</h3>
+            <p>매번 검색할 필요 없습니다. 조건이 일치하는 즉시 스마트 알림이 당신을 찾아갑니다.</p>
+        </div>
+        <div class="feature-item">
+            <i class="fa-solid fa-lock"></i>
+            <h3>검증된 네트워크</h3>
+            <p>철저한 면허 인증 시스템을 통해 신뢰할 수 있는 의료진과 병원만을 연결합니다.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 DOC-LINK. 스마트 의료 매칭 솔루션.</p>
+        <div style="margin-top: 20px; opacity: 0.5;">
+            <a href="#" style="color: inherit; text-decoration: none; margin: 0 10px;">이용약관</a>
+            <a href="#" style="color: inherit; text-decoration: none; margin: 0 10px;">개인정보처리방침</a>
+        </div>
+    </footer>
+
+</body>
+</html>

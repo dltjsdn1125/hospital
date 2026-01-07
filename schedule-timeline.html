@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간별 일정 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+            }
+
+            .timeline-container {
+                height: auto;
+                min-height: 100vh;
+                padding: 90px 4% 20px;
+            }
+
+            .timeline-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .date-navigation {
+                flex-wrap: wrap;
+            }
+
+            .date-navigation button {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
+        .timeline-container {
+            height: 100vh;
+            padding: 80px 2% 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 1%;
+        }
+
+        .timeline-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .date-navigation button {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .date-navigation button:hover {
+            background: var(--accent-soft);
+        }
+
+        .timeline-wrapper {
+            flex: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .selected-date {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .timeline-hours {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .timeline-hour {
+            display: grid;
+            grid-template-columns: 100px 1fr 150px;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 70px;
+            align-items: center;
+        }
+
+        .timeline-hour-label {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        .timeline-hour-content {
+            position: relative;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            min-height: 50px;
+        }
+
+        .timeline-hour-content:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .timeline-hour-content.has-event {
+            background: var(--primary-btn);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .timeline-hour-content.has-event:hover {
+            background: #4a4a50;
+        }
+
+        .timeline-event {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-event h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-event p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .timeline-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .timeline-actions .btn {
+            padding: 8px 15px;
+            font-size: 0.85rem;
+        }
+
+        .empty-slot {
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .time-range {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        .event-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .event-badge.confirmed {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .event-badge.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #856404;
+        }
+
+        .event-badge.applied {
+            background: rgba(23, 162, 184, 0.2);
+            color: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="doctor-dashboard.html">대시보드</a>
+            <a href="doctor-profile.html">프로필</a>
+            <a href="#" onclick="logoutHandler()">로그아웃</a>
+        </div>
+    </nav>
+
+    <div class="timeline-container">
+        <div class="timeline-header">
+            <h1>시간별 일정</h1>
+            <div class="date-navigation">
+                <button onclick="prevDay()"><i class="fa-solid fa-chevron-left"></i> 이전</button>
+                <button onclick="goToToday()">오늘</button>
+                <button onclick="nextDay()">다음 <i class="fa-solid fa-chevron-right"></i></button>
+                <a href="doctor-dashboard.html" class="btn btn-secondary btn-small">달력으로</a>
+            </div>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="selected-date" id="selectedDate">2025년 1월 12일 (수)</div>
+
+            <div class="timeline-hours" id="timelineHours">
+                <!-- 시간별 타임라인은 JS로 생성 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 일정 추가/수정 모달 -->
+    <div id="eventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: var(--glass-bg); backdrop-filter: blur(30px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 40px; max-width: 500px; width: 90%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="font-size: 1.5rem; font-weight: 600;">일정 추가</h2>
+                <button onclick="closeEventModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-sub);">&times;</button>
+            </div>
+            
+            <form id="eventForm">
+                <div class="form-group">
+                    <label>시간 범위</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="eventStartTime">시작</label>
+                            <input type="time" id="eventStartTime" name="eventStartTime" step="1800" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        </div>
+                        <div class="form-group">
+                            <label for="eventEndTime">종료</label>
+                            <input type="time" id="eventEndTime" name="eventEndTime" step="1800" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="eventType">일정 유형</label>
+                    <select id="eventType" name="eventType" required style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                        <option value="confirmed">확정된 일정</option>
+                        <option value="pending">신청 대기중</option>
+                        <option value="applied">신청한 대진</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="eventNote">메모</label>
+                    <input type="text" id="eventNote" name="eventNote" placeholder="예: 내과 대진 - 중앙연세의원" style="width: 100%; padding: 14px 20px; border: 1px solid var(--glass-border); border-radius: 15px; background: rgba(255, 255, 255, 0.8); font-size: 0.95rem;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeEventModal()">취소</button>
+                    <button type="submit" class="btn btn-main" style="flex: 1;">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 인증 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth('doctor');
+            
+            // URL 파라미터에서 날짜 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const dateParam = urlParams.get('date');
+            if (dateParam) {
+                const [year, month, day] = dateParam.split('-');
+                currentDate = new Date(year, month - 1, day);
+            }
+            renderTimeline();
+        });
+
+        let currentDate = new Date(2025, 0, 12); // 기본값
+        let selectedTimeSlot = null;
+
+        function formatDate(date) {
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekday = weekdays[date.getDay()];
+            return `${year}년 ${month}월 ${day}일 (${weekday})`;
+        }
+
+        function formatDateForUrl(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function renderTimeline() {
+            document.getElementById('selectedDate').textContent = formatDate(currentDate);
+
+            const timelineHours = document.getElementById('timelineHours');
+            timelineHours.innerHTML = '';
+
+            const dateKey = formatDateForUrl(currentDate);
+
+            // 샘플 일정 데이터
+            const events = {
+                '2025-01-12': [
+                    { start: '13:00', end: '18:00', type: 'pending', note: '내과 대진 - 중앙연세의원' }
+                ],
+                '2025-01-15': [
+                    { start: '09:00', end: '13:00', type: 'pending', note: '정형외과 대진 - 중앙연세의원' }
+                ],
+                '2025-01-18': [
+                    { start: '09:00', end: '17:00', type: 'confirmed', note: '내과 대진 - 중앙연세의원' }
+                ],
+                '2025-01-10': [
+                    { start: '09:00', end: '17:00', type: 'applied', note: '내과 대진 - 중앙연세의원' }
+                ]
+            };
+
+            const dayEvents = events[dateKey] || [];
+
+            // 00:00부터 23:30까지 30분 단위로 생성
+            for (let hour = 0; hour < 24; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    const nextTimeStr = minute === 30 ? `${String(hour + 1).padStart(2, '0')}:00` : `${String(hour).padStart(2, '0')}:30`;
+                    
+                    // 이 시간대에 일정이 있는지 확인
+                    const event = dayEvents.find(e => {
+                        return e.start === timeStr || (timeStr >= e.start && timeStr < e.end);
+                    });
+
+                    const hourSlot = document.createElement('div');
+                    hourSlot.className = 'timeline-hour';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'timeline-hour-label';
+                    label.textContent = formatTimeDisplay(timeStr);
+                    hourSlot.appendChild(label);
+
+                    const content = document.createElement('div');
+                    content.className = 'timeline-hour-content';
+                    
+                    if (event && event.start === timeStr) {
+                        // 일정 시작 시간
+                        content.classList.add('has-event');
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = 'timeline-event';
+                        eventDiv.innerHTML = `
+                            <h4>${event.note}</h4>
+                            <p>${formatTimeDisplay(event.start)} - ${formatTimeDisplay(event.end)}</p>
+                            <span class="event-badge ${event.type}">
+                                ${event.type === 'confirmed' ? '확정' : event.type === 'pending' ? '대기중' : '신청함'}
+                            </span>
+                        `;
+                        content.appendChild(eventDiv);
+                        
+                        // 일정 높이 계산 (시간 범위에 따라)
+                        const [startH, startM] = event.start.split(':').map(Number);
+                        const [endH, endM] = event.end.split(':').map(Number);
+                        const startMinutes = startH * 60 + startM;
+                        const endMinutes = endH * 60 + endM;
+                        const duration = endMinutes - startMinutes;
+                        const height = (duration / 30) * 70 - 2; // 30분당 70px
+                        content.style.minHeight = `${height}px`;
+                        hourSlot.style.minHeight = `${height}px`;
+                    } else if (event) {
+                        // 일정 중간 시간 (표시만, 클릭 불가)
+                        content.style.background = 'transparent';
+                        content.style.cursor = 'default';
+                    } else {
+                        // 빈 시간대
+                        const empty = document.createElement('div');
+                        empty.className = 'empty-slot';
+                        empty.textContent = '일정 없음';
+                        content.appendChild(empty);
+                    }
+
+                    if (!event || event.start === timeStr) {
+                        content.onclick = () => {
+                            if (!content.classList.contains('has-event')) {
+                                selectedTimeSlot = timeStr;
+                                openEventModal(timeStr);
+                            }
+                        };
+                    }
+
+                    hourSlot.appendChild(content);
+
+                    const timeRange = document.createElement('div');
+                    timeRange.className = 'time-range';
+                    timeRange.textContent = `${timeStr} - ${nextTimeStr}`;
+                    hourSlot.appendChild(timeRange);
+
+                    timelineHours.appendChild(hourSlot);
+                }
+            }
+        }
+
+        function formatTimeDisplay(timeStr) {
+            const [hour, minute] = timeStr.split(':').map(Number);
+            const period = hour >= 12 ? '오후' : '오전';
+            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            return `${period} ${displayHour}:${String(minute).padStart(2, '0')}`;
+        }
+
+        function prevDay() {
+            currentDate.setDate(currentDate.getDate() - 1);
+            renderTimeline();
+            updateUrl();
+        }
+
+        function nextDay() {
+            currentDate.setDate(currentDate.getDate() + 1);
+            renderTimeline();
+            updateUrl();
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            renderTimeline();
+            updateUrl();
+        }
+
+        function updateUrl() {
+            const dateStr = formatDateForUrl(currentDate);
+            window.history.replaceState({}, '', `schedule-timeline.html?date=${dateStr}`);
+        }
+
+        function openEventModal(timeStr) {
+            document.getElementById('eventModal').style.display = 'flex';
+            if (timeStr) {
+                document.getElementById('eventStartTime').value = timeStr;
+                const [hour, minute] = timeStr.split(':').map(Number);
+                const nextTime = minute === 30 ? `${String(hour + 1).padStart(2, '0')}:00` : `${timeStr.split(':')[0]}:30`;
+                document.getElementById('eventEndTime').value = nextTime;
+            }
+        }
+
+        function closeEventModal() {
+            document.getElementById('eventModal').style.display = 'none';
+            document.getElementById('eventForm').reset();
+        }
+
+        document.getElementById('eventForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const startTime = document.getElementById('eventStartTime').value;
+            const endTime = document.getElementById('eventEndTime').value;
+            const type = document.getElementById('eventType').value;
+            const note = document.getElementById('eventNote').value || '대진 일정';
+
+            alert(`일정이 등록되었습니다.\n시간: ${startTime} - ${endTime}\n${note}`);
+            closeEventModal();
+            renderTimeline();
+        });
+
+        function logoutHandler() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                logout();
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('eventModal').addEventListener('click', (e) => {
+            if (e.target.id === 'eventModal') {
+                closeEventModal();
+            }
+        });
+    </script>
+</body>
+</html>

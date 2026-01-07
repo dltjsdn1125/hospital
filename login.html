@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 8% 80px;
+        }
+
+        .login-card {
+            max-width: 480px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            box-shadow: var(--shadow-light);
+            padding: 60px 50px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .user-type-btn {
+            padding: 15px;
+            border: 2px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .user-type-btn.active {
+            border-color: var(--primary-btn);
+            background: rgba(93, 93, 99, 0.1);
+        }
+
+        .user-type-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            font-size: 0.9rem;
+        }
+
+        .form-actions a {
+            color: var(--text-sub);
+            text-decoration: none;
+        }
+
+        .form-actions a:hover {
+            color: var(--text-main);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 100px 4% 60px;
+            }
+
+            .login-card {
+                padding: 40px 30px;
+            }
+
+            .user-type-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .quick-login-section {
+                padding: 25px 20px;
+            }
+
+            .quick-login-buttons {
+                flex-direction: column;
+            }
+
+            .quick-login-buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="index.html">홈으로</a>
+            <a href="signup.html">회원가입</a>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>로그인</h1>
+                <p>의료인 전용 매칭 플랫폼</p>
+            </div>
+
+            <div class="user-type-selector">
+                <div class="user-type-btn active" data-type="doctor">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span>의사</span>
+                </div>
+                <div class="user-type-btn" data-type="hospital">
+                    <i class="fa-solid fa-hospital"></i>
+                    <span>병원</span>
+                </div>
+            </div>
+
+            <form id="loginForm" autocomplete="on">
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-main" style="width: 100%;">로그인</button>
+
+                <div class="form-actions">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" style="margin-right: 8px; cursor: pointer;">
+                        <span>로그인 상태 유지</span>
+                    </label>
+                    <a href="#">비밀번호 찾기</a>
+                </div>
+            </form>
+
+            <div class="divider">또는</div>
+
+            <p style="text-align: center; color: var(--text-sub); font-size: 0.9rem;">
+                아직 계정이 없으신가요? <a href="signup.html" style="color: var(--primary-btn); font-weight: 600;">회원가입</a>
+            </p>
+            
+            <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; border: 1px solid var(--glass-border);">
+                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 15px;">테스트 계정</h4>
+                <p style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 15px;">
+                    <strong>의사:</strong> doctor@example.com / doctor123<br>
+                    <strong>병원:</strong> hospital@example.com / hospital123
+                </p>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="button" class="btn btn-secondary btn-small" style="flex: 1; font-size: 0.85rem; padding: 10px;" onclick="quickLogin('doctor')">의사로 빠른 로그인</button>
+                    <button type="button" class="btn btn-secondary btn-small" style="flex: 1; font-size: 0.85rem; padding: 10px;" onclick="quickLogin('hospital')">병원으로 빠른 로그인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 스크립트 로드 확인
+        window.addEventListener('error', (e) => {
+            if (e.target.tagName === 'SCRIPT') {
+                console.error('스크립트 로드 오류:', e.target.src);
+                alert('필수 스크립트 파일을 로드할 수 없습니다. 페이지를 새로고침해주세요.');
+            }
+        });
+    </script>
+    <script src="js/auth.js"></script>
+    <script>
+        // auth.js 로드 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof validateLogin === 'undefined') {
+                console.error('auth.js가 로드되지 않았습니다.');
+                alert('인증 스크립트를 로드할 수 없습니다. js/auth.js 파일이 존재하는지 확인해주세요.');
+            } else {
+                console.log('auth.js 로드 완료');
+            }
+        });
+        
+        const userTypeBtns = document.querySelectorAll('.user-type-btn');
+        userTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                userTypeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // 빠른 로그인 함수
+        function quickLogin(userType) {
+            const accounts = {
+                doctor: { email: 'doctor@example.com', password: 'doctor123' },
+                hospital: { email: 'hospital@example.com', password: 'hospital123' }
+            };
+            
+            const account = accounts[userType];
+            if (!account) return;
+            
+            // 사용자 유형 선택
+            const typeBtn = document.querySelector(`.user-type-btn[data-type="${userType}"]`);
+            if (typeBtn) {
+                userTypeBtns.forEach(b => b.classList.remove('active'));
+                typeBtn.classList.add('active');
+            }
+            
+            // 이메일과 비밀번호 입력
+            document.getElementById('email').value = account.email;
+            document.getElementById('password').value = account.password;
+            
+            // 폼 제출
+            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            try {
+                const userType = document.querySelector('.user-type-btn.active').dataset.type;
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const rememberMe = document.querySelector('input[type="checkbox"]').checked;
+                
+                console.log('로그인 시도:', { userType, email, password: '***' });
+                
+                // 함수 존재 확인
+                if (typeof validateLogin !== 'function') {
+                    alert('인증 스크립트를 로드할 수 없습니다. 페이지를 새로고침해주세요.');
+                    console.error('validateLogin 함수를 찾을 수 없습니다.');
+                    return;
+                }
+                
+                // 로그인 검증
+                const result = validateLogin(email, password, userType);
+                console.log('검증 결과:', result);
+                
+                if (result && result.success) {
+                    // 로그인 정보 저장
+                    if (typeof saveLoginInfo !== 'function') {
+                        alert('저장 함수를 찾을 수 없습니다.');
+                        console.error('saveLoginInfo 함수를 찾을 수 없습니다.');
+                        return;
+                    }
+                    
+                    saveLoginInfo(result, rememberMe);
+                    console.log('로그인 정보 저장 완료');
+                    
+                    // 해당 대시보드로 이동
+                    if (userType === 'doctor') {
+                        window.location.href = 'doctor-dashboard.html';
+                    } else {
+                        window.location.href = 'hospital-dashboard.html';
+                    }
+                } else {
+                    alert(result?.message || '이메일 또는 비밀번호가 올바르지 않습니다.');
+                }
+            } catch (error) {
+                console.error('로그인 오류:', error);
+                alert('로그인 중 오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        // 이미 로그인된 경우 대시보드로 리다이렉트
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = getLoginInfo();
+            if (loginInfo) {
+                if (loginInfo.userType === 'doctor') {
+                    window.location.href = 'doctor-dashboard.html';
+                } else {
+                    window.location.href = 'hospital-dashboard.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

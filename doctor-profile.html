@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 관리 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .profile-container {
+            min-height: 100vh;
+            padding: 100px 8% 80px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .profile-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 30px;
+            border: 4px solid var(--glass-border);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .availability-schedule {
+            margin-top: 30px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .schedule-day {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .schedule-day-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .time-slot {
+            padding: 8px 15px;
+            background: #fff;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .time-slot.active {
+            background: var(--primary-btn);
+            color: #fff;
+            border-color: var(--primary-btn);
+        }
+
+        .time-slot:hover {
+            background: var(--accent-soft);
+        }
+
+        .region-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .region-tag {
+            padding: 8px 16px;
+            background: var(--accent-soft);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .region-tag .remove {
+            cursor: pointer;
+            color: var(--text-sub);
+        }
+
+        .region-tag .remove:hover {
+            color: var(--text-main);
+        }
+
+        .btn-group-end {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="doctor-dashboard.html">대시보드</a>
+            <a href="schedule.html">스케줄 관리</a>
+            <a href="#" onclick="logoutHandler()">로그아웃</a>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>프로필 관리</h1>
+            <a href="doctor-dashboard.html" class="btn btn-secondary">돌아가기</a>
+        </div>
+
+        <form id="profileForm">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">이름</label>
+                        <input type="text" id="name" name="name" value="김의사" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">이메일</label>
+                        <input type="email" id="email" name="email" value="doctor@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">휴대폰 번호</label>
+                        <input type="tel" id="phone" name="phone" value="010-1234-5678" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="license">의사 면허 번호</label>
+                        <input type="text" id="license" name="license" value="12345678" required>
+                        <small style="color: var(--text-sub); font-size: 0.85rem; margin-top: 5px; display: block;">면허 번호 변경 시 재인증이 필요합니다.</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="specialty">전문과목</label>
+                        <select id="specialty" name="specialty" required>
+                            <option value="internal" selected>내과</option>
+                            <option value="surgery">외과</option>
+                            <option value="orthopedic">정형외과</option>
+                            <option value="pediatrics">소아과</option>
+                            <option value="obstetrics">산부인과</option>
+                            <option value="psychiatry">정신건강의학과</option>
+                            <option value="dermatology">피부과</option>
+                            <option value="ophthalmology">안과</option>
+                            <option value="otolaryngology">이비인후과</option>
+                            <option value="radiology">영상의학과</option>
+                            <option value="emergency">응급의학과</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="career">경력 (년)</label>
+                        <input type="number" id="career" name="career" value="5" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">자기소개</label>
+                    <textarea id="bio" name="bio" rows="4" placeholder="간단한 자기소개를 입력해주세요">5년차 내과 전문의입니다. 환자 중심의 진료를 지향합니다.</textarea>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h2 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 20px;">근무 가능 지역</h2>
+                <div class="form-group">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="newRegion" placeholder="지역을 입력하고 추가하세요 (예: 서울 강남구)" style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="addRegion()">추가</button>
+                    </div>
+                    <div class="region-tags" id="regionTags">
+                        <div class="region-tag">
+                            <span>서울 강남구</span>
+                            <span class="remove" onclick="removeRegion(this)">×</span>
+                        </div>
+                        <div class="region-tag">
+                            <span>서울 서초구</span>
+                            <span class="remove" onclick="removeRegion(this)">×</span>
+                        </div>
+                        <div class="region-tag">
+                            <span>서울 송파구</span>
+                            <span class="remove" onclick="removeRegion(this)">×</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h2 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 20px;">근무 가능 시간 설정</h2>
+                <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 30px;">매주 정기적으로 근무 가능한 시간을 설정하세요. 시간별로 세분화하여 설정할 수 있습니다.</p>
+                
+                <div class="availability-schedule">
+                    <div class="schedule-grid" id="weeklySchedule">
+                        <!-- 주간 스케줄은 동적으로 생성 -->
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; border: 1px solid var(--glass-border);">
+                        <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 15px;">시간 범위 선택 방법</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.6;">
+                            • 각 요일의 시간 슬롯을 클릭하여 근무 가능 시간을 설정합니다.<br>
+                            • 30분 단위로 정밀하게 시간을 설정할 수 있습니다.<br>
+                            • 여러 시간대를 선택하여 분할 근무도 가능합니다.<br>
+                            • 시간 슬롯 우클릭으로 시간 범위를 직접 입력할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; border: 1px solid var(--glass-border);">
+                    <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 15px;">시간별 상세 설정</h4>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="showTimeSlotModal()">
+                        <i class="fa-solid fa-clock"></i> 시간 범위 직접 입력
+                    </button>
+                </div>
+            </div>
+
+            <div class="btn-group-end">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='doctor-dashboard.html'">취소</button>
+                <button type="submit" class="btn btn-main">저장하기</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 인증 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = checkAuth('doctor');
+            if (loginInfo) {
+                updateUserName();
+            }
+        });
+
+        function addRegion() {
+            const input = document.getElementById('newRegion');
+            const value = input.value.trim();
+            if (value) {
+                const tagsContainer = document.getElementById('regionTags');
+                const tag = document.createElement('div');
+                tag.className = 'region-tag';
+                tag.innerHTML = `
+                    <span>${value}</span>
+                    <span class="remove" onclick="removeRegion(this)">×</span>
+                `;
+                tagsContainer.appendChild(tag);
+                input.value = '';
+            }
+        }
+
+        function removeRegion(element) {
+            element.parentElement.remove();
+        }
+
+        function toggleSlot(element) {
+            element.classList.toggle('active');
+        }
+
+        // 주간 스케줄 초기화
+        function initWeeklySchedule() {
+            const days = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
+            const scheduleGrid = document.getElementById('weeklySchedule');
+            
+            days.forEach((day, index) => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'schedule-day';
+                
+                const label = document.createElement('div');
+                label.className = 'schedule-day-label';
+                label.textContent = day;
+                dayDiv.appendChild(label);
+                
+                const timeSlots = document.createElement('div');
+                timeSlots.className = 'time-slots';
+                
+                // 기본 시간 슬롯
+                const defaultSlots = [
+                    { time: '09:00-12:00', active: index < 3 },
+                    { time: '14:00-18:00', active: index < 5 && index !== 6 }
+                ];
+                
+                if (index === 6) { // 일요일
+                    timeSlots.innerHTML = '<span style="color: var(--text-sub); font-size: 0.85rem;">근무 불가</span>';
+                } else {
+                    defaultSlots.forEach(slot => {
+                        const slotSpan = document.createElement('span');
+                        slotSpan.className = 'time-slot' + (slot.active ? ' active' : '');
+                        slotSpan.textContent = slot.time;
+                        slotSpan.onclick = function() { toggleSlot(this); };
+                        slotSpan.oncontextmenu = function(e) {
+                            e.preventDefault();
+                            showTimeSlotEditor(this, day, index);
+                        };
+                        timeSlots.appendChild(slotSpan);
+                    });
+                }
+                
+                dayDiv.appendChild(timeSlots);
+                scheduleGrid.appendChild(dayDiv);
+            });
+        }
+
+        function showTimeSlotEditor(element, day, dayIndex) {
+            const currentTime = element.textContent;
+            const newTime = prompt(`${day}의 시간 범위를 입력하세요 (예: 09:00-18:00):`, currentTime);
+            if (newTime && /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(newTime)) {
+                element.textContent = newTime;
+            } else if (newTime) {
+                alert('올바른 형식으로 입력해주세요 (예: 09:00-18:00)');
+            }
+        }
+
+        function showTimeSlotModal() {
+            alert('시간 범위 직접 입력 기능입니다.\n\n각 요일의 시간 슬롯을 우클릭하여 시간 범위를 수정할 수 있습니다.');
+        }
+
+        // 페이지 로드 시 주간 스케줄 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            initWeeklySchedule();
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('프로필이 저장되었습니다.');
+            window.location.href = 'doctor-dashboard.html';
+        });
+
+        function logoutHandler() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                logout();
+            }
+        }
+    </script>
+</body>
+</html>

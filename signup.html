@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .signup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 8% 80px;
+        }
+
+        .signup-card {
+            max-width: 600px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            box-shadow: var(--shadow-light);
+            padding: 60px 50px;
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .signup-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .signup-header p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .user-type-btn {
+            padding: 15px;
+            border: 2px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .user-type-btn.active {
+            border-color: var(--primary-btn);
+            background: rgba(93, 93, 99, 0.1);
+        }
+
+        .user-type-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .step.active {
+            background: var(--primary-btn);
+            color: #fff;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .terms-box {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            margin-top: 3px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="index.html">홈으로</a>
+            <a href="login.html">로그인</a>
+        </div>
+    </nav>
+
+    <div class="signup-container">
+        <div class="signup-card">
+            <div class="signup-header">
+                <h1>회원가입</h1>
+                <p>의료인 전용 매칭 플랫폼에 오신 것을 환영합니다</p>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step active" data-step="1">1</div>
+                <div class="step" data-step="2">2</div>
+                <div class="step" data-step="3">3</div>
+            </div>
+
+            <div class="user-type-selector">
+                <div class="user-type-btn active" data-type="doctor">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span>의사</span>
+                </div>
+                <div class="user-type-btn" data-type="hospital">
+                    <i class="fa-solid fa-hospital"></i>
+                    <span>병원</span>
+                </div>
+            </div>
+
+            <!-- 의사 가입 폼 -->
+            <form id="signupForm">
+                <!-- Step 1: 약관 동의 -->
+                <div class="form-section active" id="step1">
+                    <div class="terms-box">
+                        <h4 style="margin-bottom: 15px; font-weight: 600;">이용약관</h4>
+                        <p>제1조 (목적) 이 약관은 DOC-LINK(이하 "회사")가 제공하는 의료진 매칭 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.</p>
+                        <p style="margin-top: 10px;">제2조 (정의) 이 약관에서 사용하는 용어의 정의는 다음과 같습니다...</p>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms1" required>
+                        <label for="terms1">이용약관에 동의합니다 (필수)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms2" required>
+                        <label for="terms2">개인정보 처리방침에 동의합니다 (필수)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms3">
+                        <label for="terms3">마케팅 정보 수신에 동의합니다 (선택)</label>
+                    </div>
+
+                    <button type="button" class="btn btn-main" style="width: 100%;" onclick="nextStep()">다음</button>
+                </div>
+
+                <!-- Step 2: 기본 정보 (의사) -->
+                <div class="form-section" id="step2-doctor">
+                    <div class="form-group">
+                        <label for="doctorName">이름</label>
+                        <input type="text" id="doctorName" name="doctorName" required placeholder="실명을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctorEmail">이메일</label>
+                        <input type="email" id="doctorEmail" name="doctorEmail" required placeholder="your@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctorPassword">비밀번호</label>
+                        <input type="password" id="doctorPassword" name="doctorPassword" required placeholder="8자 이상 영문, 숫자 조합">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctorPasswordConfirm">비밀번호 확인</label>
+                        <input type="password" id="doctorPasswordConfirm" name="doctorPasswordConfirm" required placeholder="비밀번호를 다시 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctorLicense">의사 면허 번호</label>
+                        <input type="text" id="doctorLicense" name="doctorLicense" required placeholder="의사면허번호를 입력하세요">
+                        <small style="color: var(--text-sub); font-size: 0.85rem; margin-top: 5px; display: block;">면허 인증은 가입 후 심사 과정을 거칩니다.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctorPhone">휴대폰 번호</label>
+                        <input type="tel" id="doctorPhone" name="doctorPhone" required placeholder="010-0000-0000">
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">이전</button>
+                        <button type="button" class="btn btn-main" onclick="nextStep()">다음</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: 기본 정보 (병원) -->
+                <div class="form-section" id="step2-hospital">
+                    <div class="form-group">
+                        <label for="hospitalName">병원명</label>
+                        <input type="text" id="hospitalName" name="hospitalName" required placeholder="정식 병원명을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalEmail">이메일</label>
+                        <input type="email" id="hospitalEmail" name="hospitalEmail" required placeholder="your@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalPassword">비밀번호</label>
+                        <input type="password" id="hospitalPassword" name="hospitalPassword" required placeholder="8자 이상 영문, 숫자 조합">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalPasswordConfirm">비밀번호 확인</label>
+                        <input type="password" id="hospitalPasswordConfirm" name="hospitalPasswordConfirm" required placeholder="비밀번호를 다시 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalLicense">사업자등록번호</label>
+                        <input type="text" id="hospitalLicense" name="hospitalLicense" required placeholder="000-00-00000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalPhone">대표 연락처</label>
+                        <input type="tel" id="hospitalPhone" name="hospitalPhone" required placeholder="02-0000-0000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalAddress">병원 주소</label>
+                        <input type="text" id="hospitalAddress" name="hospitalAddress" required placeholder="병원 주소를 입력하세요">
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">이전</button>
+                        <button type="button" class="btn btn-main" onclick="nextStep()">다음</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: 추가 정보 -->
+                <div class="form-section" id="step3">
+                    <div class="form-group">
+                        <label id="step3Title">추가 정보를 입력해주세요</label>
+                        <p id="step3Description" style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 20px;">프로필은 나중에 수정할 수 있습니다.</p>
+                    </div>
+
+                    <!-- 의사용 추가 필드 -->
+                    <div id="doctorExtraFields">
+                        <div class="form-group">
+                            <label for="doctorSpecialty">전문과목</label>
+                            <select id="doctorSpecialty" name="doctorSpecialty" required>
+                                <option value="">선택하세요</option>
+                                <option value="internal">내과</option>
+                                <option value="surgery">외과</option>
+                                <option value="orthopedic">정형외과</option>
+                                <option value="pediatrics">소아과</option>
+                                <option value="obstetrics">산부인과</option>
+                                <option value="psychiatry">정신건강의학과</option>
+                                <option value="dermatology">피부과</option>
+                                <option value="ophthalmology">안과</option>
+                                <option value="otolaryngology">이비인후과</option>
+                                <option value="radiology">영상의학과</option>
+                                <option value="emergency">응급의학과</option>
+                                <option value="other">기타</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctorCareer">경력 (년)</label>
+                            <input type="number" id="doctorCareer" name="doctorCareer" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctorRegion">근무 가능 지역</label>
+                            <input type="text" id="doctorRegion" name="doctorRegion" placeholder="예: 서울, 경기">
+                        </div>
+                    </div>
+
+                    <!-- 병원용 추가 필드 -->
+                    <div id="hospitalExtraFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="hospitalSpecialties">진료 과목 (복수 선택 가능)</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="hospitalSpecialty" value="internal" style="margin-right: 8px;">
+                                    <span>내과</span>
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="hospitalSpecialty" value="surgery" style="margin-right: 8px;">
+                                    <span>외과</span>
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="hospitalSpecialty" value="orthopedic" style="margin-right: 8px;">
+                                    <span>정형외과</span>
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="hospitalSpecialty" value="pediatrics" style="margin-right: 8px;">
+                                    <span>소아과</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hospitalRepresentative">담당자명</label>
+                            <input type="text" id="hospitalRepresentative" name="hospitalRepresentative" placeholder="담당자 이름">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">이전</button>
+                        <button type="submit" class="btn btn-main">가입 완료</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let userType = 'doctor';
+
+        const userTypeBtns = document.querySelectorAll('.user-type-btn');
+        userTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                userTypeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                userType = btn.dataset.type;
+                updateFormSections();
+            });
+        });
+
+        function updateFormSections() {
+            document.getElementById('step2-doctor').style.display = userType === 'doctor' ? 'block' : 'none';
+            document.getElementById('step2-hospital').style.display = userType === 'hospital' ? 'block' : 'none';
+            document.getElementById('doctorExtraFields').style.display = userType === 'doctor' ? 'block' : 'none';
+            document.getElementById('hospitalExtraFields').style.display = userType === 'hospital' ? 'block' : 'none';
+        }
+
+        function nextStep() {
+            if (currentStep < 3) {
+                document.querySelector(`#step${currentStep}`).classList.remove('active');
+                currentStep++;
+                
+                if (currentStep === 2) {
+                    document.querySelector(`#step${currentStep}-${userType}`).classList.add('active');
+                } else {
+                    document.querySelector(`#step${currentStep}`).classList.add('active');
+                }
+                
+                updateSteps();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                if (currentStep === 2) {
+                    document.querySelector(`#step${currentStep}-${userType}`).classList.remove('active');
+                } else {
+                    document.querySelector(`#step${currentStep}`).classList.remove('active');
+                }
+                
+                currentStep--;
+                document.querySelector(`#step${currentStep}`).classList.add('active');
+                updateSteps();
+            }
+        }
+
+        function updateSteps() {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index + 1 <= currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // 가입 완료 후 로그인 페이지로 이동
+            alert('회원가입이 완료되었습니다. 로그인해주세요.');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

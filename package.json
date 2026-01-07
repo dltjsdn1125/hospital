@@ -1,0 +1,21 @@
+{
+  "name": "doc-link",
+  "version": "1.0.0",
+  "description": "의료인 전용 근무 매칭 플랫폼 MVP",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 8080 -c-1",
+    "serve": "npx http-server -p 8080 -c-1"
+  },
+  "keywords": [
+    "hospital",
+    "medical",
+    "scheduling",
+    "matching"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

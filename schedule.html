@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스케줄 관리 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .schedule-container {
+            min-height: 100vh;
+            padding: 100px 8% 80px;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .schedule-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .schedule-grid-layout {
+            display: grid;
+            grid-template-columns: 0.3fr 1fr;
+            gap: 30px;
+        }
+
+        .view-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .view-btn.active {
+            background: var(--primary-btn);
+            color: #fff;
+            border-color: var(--primary-btn);
+        }
+
+        .timeline-view {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+            display: none;
+        }
+
+        .timeline-view.active {
+            display: block;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .timeline-date {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .timeline-hours {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .timeline-hour {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            min-height: 60px;
+        }
+
+        .timeline-hour-label {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-align: right;
+            padding-right: 15px;
+        }
+
+        .timeline-hour-slot {
+            position: relative;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .timeline-hour-slot:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .timeline-hour-slot.has-event {
+            background: var(--primary-btn);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .timeline-event {
+            background: var(--primary-btn);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 5px 0;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .timeline-event h5 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .timeline-event p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .timeline-hour-slot.empty {
+            background: transparent;
+        }
+
+        .timeline-hour-slot.empty:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+
+        .calendar-month {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-month h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav button {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--accent-soft);
+        }
+
+        .mini-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 30px;
+        }
+
+        .mini-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .mini-day.other-month {
+            color: var(--text-sub);
+            opacity: 0.3;
+        }
+
+        .mini-day.today {
+            background: var(--primary-btn);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .mini-day.has-shift {
+            border: 2px solid var(--primary-btn);
+        }
+
+        .mini-day:hover {
+            background: var(--accent-soft);
+        }
+
+        .main-calendar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+        }
+
+        .calendar-header-large {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .calendar-header-large h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .week-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .week-day-label {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            padding: 10px;
+        }
+
+        .calendar-weeks {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .calendar-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-day-large {
+            min-height: 120px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .calendar-day-large:hover {
+            background: var(--accent-soft);
+            transform: translateY(-2px);
+        }
+
+        .calendar-day-large.today {
+            background: rgba(93, 93, 99, 0.1);
+            border: 2px solid var(--primary-btn);
+        }
+
+        .calendar-day-large.other-month {
+            opacity: 0.3;
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .day-shifts {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .shift-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            background: var(--primary-btn);
+            color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .shift-badge.confirmed {
+            background: #28a745;
+        }
+
+        .shift-badge.pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .shift-detail-panel {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .shift-detail-item {
+            padding: 15px;
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .shift-detail-item h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .shift-detail-item p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="doctor-dashboard.html">대시보드</a>
+            <a href="doctor-profile.html">프로필</a>
+            <a href="#" onclick="logoutHandler()">로그아웃</a>
+        </div>
+    </nav>
+
+    <div class="schedule-container">
+        <div class="schedule-header">
+            <h1>스케줄 관리</h1>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="showAddEventModal()">+ 일정 추가</button>
+            </div>
+        </div>
+
+        <div class="view-selector">
+            <button class="view-btn active" onclick="switchView('calendar')">캘린더 뷰</button>
+            <button class="view-btn" onclick="switchView('timeline')">시간별 타임라인</button>
+        </div>
+
+        <!-- 타임라인 뷰 -->
+        <div class="timeline-view" id="timelineView">
+            <div class="timeline-header">
+                <div>
+                    <div class="timeline-date" id="timelineDate">2025년 1월 12일 (수)</div>
+                    <p style="color: var(--text-sub); font-size: 0.9rem; margin-top: 5px;">시간별 일정을 확인하고 관리하세요</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary btn-small" onclick="prevTimelineDay()">이전 날</button>
+                    <button class="btn btn-secondary btn-small" onclick="todayTimeline()">오늘</button>
+                    <button class="btn btn-secondary btn-small" onclick="nextTimelineDay()">다음 날</button>
+                </div>
+            </div>
+
+            <div class="timeline-hours" id="timelineHours">
+                <!-- 시간별 슬롯은 JS로 생성 -->
+            </div>
+        </div>
+
+        <!-- 캘린더 뷰 -->
+        <div class="schedule-grid-layout" id="calendarView">
+            <div class="sidebar">
+                <div class="calendar-month">
+                    <h3 id="miniMonth">2025년 1월</h3>
+                    <div class="calendar-nav">
+                        <button onclick="prevMiniMonth()"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="nextMiniMonth()"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="mini-calendar" id="miniCalendar">
+                    <!-- 미니 캘린더는 JS로 생성 -->
+                </div>
+
+                <div class="shift-detail-panel">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 15px;">오늘의 일정</h4>
+                    <div class="shift-detail-item">
+                        <h4>중앙연세의원</h4>
+                        <p>오후 1:00 - 6:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-calendar">
+                <div class="calendar-header-large">
+                    <h2 id="mainMonth">2025년 1월</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary btn-small" onclick="prevMonth()">이전 달</button>
+                        <button class="btn btn-secondary btn-small" onclick="todayMonth()">오늘</button>
+                        <button class="btn btn-secondary btn-small" onclick="nextMonth()">다음 달</button>
+                    </div>
+                </div>
+
+                <div class="week-header">
+                    <div class="week-day-label">일</div>
+                    <div class="week-day-label">월</div>
+                    <div class="week-day-label">화</div>
+                    <div class="week-day-label">수</div>
+                    <div class="week-day-label">목</div>
+                    <div class="week-day-label">금</div>
+                    <div class="week-day-label">토</div>
+                </div>
+
+                <div class="calendar-weeks" id="calendarWeeks">
+                    <!-- 캘린더는 JS로 생성 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 인증 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth('doctor');
+        });
+
+        let currentDate = new Date(2025, 0, 1); // 2025년 1월
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('mainMonth').textContent = `${year}년 ${month + 1}월`;
+            document.getElementById('miniMonth').textContent = `${year}년 ${month + 1}월`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            const calendarWeeks = document.getElementById('calendarWeeks');
+            calendarWeeks.innerHTML = '';
+
+            let currentDate = new Date(startDate);
+            for (let week = 0; week < 6; week++) {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'calendar-week';
+
+                for (let day = 0; day < 7; day++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day-large';
+                    
+                    if (currentDate.getMonth() !== month) {
+                        dayDiv.classList.add('other-month');
+                    }
+                    
+                    const today = new Date();
+                    if (currentDate.toDateString() === today.toDateString()) {
+                        dayDiv.classList.add('today');
+                    }
+
+                    const dayNumber = document.createElement('div');
+                    dayNumber.className = 'day-number';
+                    dayNumber.textContent = currentDate.getDate();
+                    dayDiv.appendChild(dayNumber);
+
+                    const dayShifts = document.createElement('div');
+                    dayShifts.className = 'day-shifts';
+                    
+                    // 샘플 일정 데이터 (시간 포함)
+                    if (currentDate.getDate() === 12) {
+                        const badge = document.createElement('div');
+                        badge.className = 'shift-badge pending';
+                        badge.textContent = '내과 대진 13:00-18:00';
+                        badge.onclick = (e) => {
+                            e.stopPropagation();
+                            showTimelineForDate(currentDate);
+                        };
+                        dayShifts.appendChild(badge);
+                    }
+                    if (currentDate.getDate() === 15) {
+                        const badge = document.createElement('div');
+                        badge.className = 'shift-badge pending';
+                        badge.textContent = '정형외과 대진 09:00-13:00';
+                        badge.onclick = (e) => {
+                            e.stopPropagation();
+                            showTimelineForDate(currentDate);
+                        };
+                        dayShifts.appendChild(badge);
+                    }
+                    if (currentDate.getDate() === 18) {
+                        const badge = document.createElement('div');
+                        badge.className = 'shift-badge confirmed';
+                        badge.textContent = '내과 대진 09:00-17:00';
+                        badge.onclick = (e) => {
+                            e.stopPropagation();
+                            showTimelineForDate(currentDate);
+                        };
+                        dayShifts.appendChild(badge);
+                    }
+
+                    dayDiv.onclick = () => showTimelineForDate(currentDate);
+                    dayDiv.appendChild(dayShifts);
+                    weekDiv.appendChild(dayDiv);
+
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                calendarWeeks.appendChild(weekDiv);
+            }
+        }
+
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function todayMonth() {
+            currentDate = new Date();
+            renderCalendar();
+        }
+
+        function prevMiniMonth() {
+            prevMonth();
+        }
+
+        function nextMiniMonth() {
+            nextMonth();
+        }
+
+        let selectedTimelineDate = new Date(2025, 0, 12); // 초기값
+
+        function switchView(viewType) {
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (viewType === 'calendar') {
+                document.getElementById('calendarView').style.display = 'grid';
+                document.getElementById('timelineView').classList.remove('active');
+            } else {
+                document.getElementById('calendarView').style.display = 'none';
+                document.getElementById('timelineView').classList.add('active');
+                renderTimeline();
+            }
+        }
+
+        function showTimelineForDate(date) {
+            selectedTimelineDate = new Date(date);
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-btn')[1].classList.add('active');
+            switchView('timeline');
+        }
+
+        function renderTimeline() {
+            const dateStr = formatDate(selectedTimelineDate);
+            document.getElementById('timelineDate').textContent = dateStr;
+
+            const timelineHours = document.getElementById('timelineHours');
+            timelineHours.innerHTML = '';
+
+            // 00:00부터 23:30까지 30분 단위로 생성
+            for (let hour = 0; hour < 24; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const hourSlot = document.createElement('div');
+                    hourSlot.className = 'timeline-hour';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'timeline-hour-label';
+                    label.textContent = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    hourSlot.appendChild(label);
+
+                    const slot = document.createElement('div');
+                    slot.className = 'timeline-hour-slot';
+                    
+                    // 샘플 일정 데이터 (1월 12일 기준)
+                    if (selectedTimelineDate.getDate() === 12) {
+                        if (hour === 13 && minute === 0) {
+                            slot.classList.add('has-event');
+                            const event = document.createElement('div');
+                            event.className = 'timeline-event';
+                            event.innerHTML = `
+                                <h5>내과 대진 - 중앙연세의원</h5>
+                                <p>13:00 - 18:00 (5시간)</p>
+                            `;
+                            slot.appendChild(event);
+                        }
+                    } else if (selectedTimelineDate.getDate() === 15) {
+                        if (hour === 9 && minute === 0) {
+                            slot.classList.add('has-event');
+                            const event = document.createElement('div');
+                            event.className = 'timeline-event';
+                            event.innerHTML = `
+                                <h5>정형외과 대진 - 중앙연세의원</h5>
+                                <p>09:00 - 13:00 (4시간)</p>
+                            `;
+                            slot.appendChild(event);
+                        }
+                    } else if (selectedTimelineDate.getDate() === 18) {
+                        if (hour === 9 && minute === 0) {
+                            slot.classList.add('has-event');
+                            const event = document.createElement('div');
+                            event.className = 'timeline-event';
+                            event.innerHTML = `
+                                <h5>내과 대진 - 중앙연세의원</h5>
+                                <p>09:00 - 17:00 (8시간)</p>
+                            `;
+                            slot.appendChild(event);
+                        }
+                    }
+
+                    slot.onclick = () => {
+                        if (!slot.classList.contains('has-event')) {
+                            showAddEventModal(selectedTimelineDate, hour, minute);
+                        }
+                    };
+
+                    hourSlot.appendChild(slot);
+                    timelineHours.appendChild(hourSlot);
+                }
+            }
+        }
+
+        function formatDate(date) {
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekday = weekdays[date.getDay()];
+            return `${year}년 ${month}월 ${day}일 (${weekday})`;
+        }
+
+        function prevTimelineDay() {
+            selectedTimelineDate.setDate(selectedTimelineDate.getDate() - 1);
+            renderTimeline();
+        }
+
+        function nextTimelineDay() {
+            selectedTimelineDate.setDate(selectedTimelineDate.getDate() + 1);
+            renderTimeline();
+        }
+
+        function todayTimeline() {
+            selectedTimelineDate = new Date();
+            renderTimeline();
+        }
+
+        function showAddEventModal(date, hour, minute) {
+            const dateStr = formatDate(date || selectedTimelineDate);
+            const timeStr = hour !== undefined ? `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}` : '';
+            alert(`일정 추가\n날짜: ${dateStr}\n${timeStr ? '시간: ' + timeStr : ''}\n\n일정 추가 기능은 곧 추가될 예정입니다.`);
+        }
+
+        function logoutHandler() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                logout();
+            }
+        }
+
+        // 초기 렌더링
+        renderCalendar();
+    </script>
+</body>
+</html>

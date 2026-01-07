@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>병원 프로필 관리 | DOC-LINK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .profile-container {
+            min-height: 100vh;
+            padding: 100px 8% 80px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .profile-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 30px;
+            border: 4px solid var(--glass-border);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .specialty-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: var(--accent-soft);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .btn-group-end {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">DOC-LINK</a>
+        <div class="nav-links">
+            <a href="hospital-dashboard.html">대시보드</a>
+            <a href="shift-register.html">대진 등록</a>
+            <a href="#" onclick="logoutHandler()">로그아웃</a>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>병원 프로필 관리</h1>
+            <a href="hospital-dashboard.html" class="btn btn-secondary">돌아가기</a>
+        </div>
+
+        <form id="profileForm">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-hospital"></i>
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalName">병원명</label>
+                    <input type="text" id="hospitalName" name="hospitalName" value="중앙연세의원" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">이메일</label>
+                        <input type="email" id="email" name="email" value="hospital@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">대표 연락처</label>
+                        <input type="tel" id="phone" name="phone" value="02-1234-5678" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="license">사업자등록번호</label>
+                        <input type="text" id="license" name="license" value="123-45-67890" required>
+                        <small style="color: var(--text-sub); font-size: 0.85rem; margin-top: 5px; display: block;">사업자등록번호 변경 시 재인증이 필요합니다.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="representative">담당자명</label>
+                        <input type="text" id="representative" name="representative" value="홍길동" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">병원 주소</label>
+                    <input type="text" id="address" name="address" value="서울특별시 강남구 테헤란로 123" required>
+                </div>
+
+                <div class="form-group">
+                    <label>진료 과목</label>
+                    <div class="specialty-checkboxes">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="internal" checked>
+                            <span>내과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="surgery">
+                            <span>외과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="orthopedic" checked>
+                            <span>정형외과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="pediatrics">
+                            <span>소아과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="obstetrics">
+                            <span>산부인과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="psychiatry">
+                            <span>정신건강의학과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="dermatology">
+                            <span>피부과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="ophthalmology">
+                            <span>안과</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="specialty" value="otolaryngology">
+                            <span>이비인후과</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">병원 소개</label>
+                    <textarea id="bio" name="bio" rows="4" placeholder="병원 소개를 입력해주세요">환자 중심의 진료를 제공하는 중앙연세의원입니다.</textarea>
+                </div>
+            </div>
+
+            <div class="btn-group-end">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='hospital-dashboard.html'">취소</button>
+                <button type="submit" class="btn btn-main">저장하기</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 인증 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = checkAuth('hospital');
+            if (loginInfo) {
+                updateUserName();
+            }
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('프로필이 저장되었습니다.');
+            window.location.href = 'hospital-dashboard.html';
+        });
+
+        function logoutHandler() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                logout();
+            }
+        }
+    </script>
+</body>
+</html>
